@@ -14,7 +14,8 @@ class SharedObjectClient extends EventEmitter{
         this.data = {};
         this._v = 0;
         this.ready = false;
-
+        this.delayCount = 0;
+        this.delay = 0;
         this.endpoint = endpoint;
         this.initTransport = transports.rpc;
         transports.source.on('message', this._processSource.bind(this));
@@ -38,6 +39,12 @@ class SharedObjectClient extends EventEmitter{
                 this._v = data.message.v;
 
                 this._validate();
+                this.delay += new Date() - new Date(data.message.now);
+                this.delayCount++;
+                if (this.delayCount % 10 == 0){
+                    console.log("Average time: " + this.delay+10);
+                    this.delay = 0;
+                }
                 this.emit('update', old, this.data, diffs);
 
             }else{

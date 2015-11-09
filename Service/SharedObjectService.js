@@ -13,7 +13,6 @@ class SharedObjectService{
         this.data = initial;
         this._lastTransmit = clone(initial);
         this._v = 0;
-
         this.endpoint = endpoint;
         transports.rpc.on('message', this._processRPC.bind(this));
         this.diffTransport = transports.source;
@@ -30,13 +29,14 @@ class SharedObjectService{
     }
 
     notify(){
+        var now = new Date();
         doValidate(this.endpoint, this.data);
         var diffs = differ(this._lastTransmit, this.data);
         if (diffs) {
             this._v++;
             var OTW = {
                 endpoint: "_SO_" + this.endpoint.name,
-                message: {diffs, v: this._v}
+                message: {diffs, v: this._v, now}
             };
             this.diffTransport.send(JSON.stringify(OTW));
             this._lastTransmit = clone(this.data);
