@@ -2,12 +2,14 @@
 
 var differ = require("deep-diff");
 var clone = require("../misc/clone");
+var doValidate = require("../misc/Validation").SharedObjectValidation;
 
 class SharedObjectService{
     constructor(endpoint, transports, initial){
         if (!transports.rpc || !transports.source)
             throw new Error("Shared objects need both Source and RPC transports to be configured");
 
+        doValidate(endpoint, initial);
         this.data = initial;
         this._lastTransmit = clone(initial);
 
@@ -27,6 +29,7 @@ class SharedObjectService{
     }
 
     notify(){
+        doValidate(this.endpoint, this.data);
         var diffs = differ(this._lastTransmit, this.data);
         var OTW = {
             endpoint: "_SO_" + this.endpoint.name,

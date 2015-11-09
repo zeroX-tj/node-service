@@ -1,4 +1,0 @@
-
-function createService(descriptor, handlers){
-
-}

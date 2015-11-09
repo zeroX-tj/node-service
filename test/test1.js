@@ -114,14 +114,15 @@ setTimeout(()=> {
         console.log("Server answered:", res);
     });
 },5000);
-
+/*
 /**
  * Source test
  */
+/*
 c.Sourcetest.on('message', function(msg){
     console.log("Got a message:", msg);
 });
-/*
+
 setInterval(function() {
     s.Sourcetest.send({
         message: "This is a message",
@@ -129,6 +130,7 @@ setInterval(function() {
     });
 },2000);
 */
+
 /**
  * SharedObject test
  */
