@@ -12,6 +12,8 @@ class SharedObjectClient extends EventEmitter{
             throw new Error("Shared objects need both Source and RPC transports to be configured");
 
         this.data = {};
+        this._v = 0;
+        this.ready = false;
 
         this.endpoint = endpoint;
         this.initTransport = transports.rpc;
@@ -24,15 +26,27 @@ class SharedObjectClient extends EventEmitter{
         data = JSON.parse(data.toString());
         if (data.endpoint == "_SO_" + this.endpoint.name){
 
-            var old = clone(this.data);
+            if (data.message.v == (this._v+1)) {
 
-            var diffs = data.message;
-            for(let diff of diffs){
-                differ.applyChange(this.data, true, diff);
+                var old = clone(this.data);
+
+                var diffs = data.message.diffs;
+                for (let diff of diffs) {
+                    differ.applyChange(this.data, true, diff);
+                }
+
+                this._v = data.message.v;
+
+                this._validate();
+                this.emit('update', old, this.data, diffs);
+
+            }else{
+
+                console.error("Missed a version, refetching.");
+                this.ready = false;
+                this._init();
+
             }
-
-            this._validate();
-            this.emit('update', old, this.data, diffs);
         }
     }
 
@@ -41,8 +55,10 @@ class SharedObjectClient extends EventEmitter{
             endpoint: "_SO_" + this.endpoint.name,
             input: "init"
         }, (answer) => {
-            this.data = answer.res;
+            this.data = answer.res.data;
+            this._v = answer.res.v;
             this._validate();
+            this.ready = true;
             this.emit('init');
         });
     }

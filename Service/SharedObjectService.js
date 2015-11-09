@@ -12,6 +12,7 @@ class SharedObjectService{
         doValidate(endpoint, initial);
         this.data = initial;
         this._lastTransmit = clone(initial);
+        this._v = 0;
 
         this.endpoint = endpoint;
         transports.rpc.on('message', this._processRPC.bind(this));
@@ -21,7 +22,7 @@ class SharedObjectService{
     _processRPC(message, reply){
         if (message.endpoint == "_SO_" + this.endpoint.name){
             if (message.input == "init"){
-                reply({err:null, res:this.data});
+                reply({err:null, res:{data: this.data, v: this._v}});
             }else{
                 throw "Got bad data on RPC channel";
             }
@@ -32,9 +33,10 @@ class SharedObjectService{
         doValidate(this.endpoint, this.data);
         var diffs = differ(this._lastTransmit, this.data);
         if (diffs) {
+            this._v++;
             var OTW = {
                 endpoint: "_SO_" + this.endpoint.name,
-                message: diffs
+                message: {diffs, v: this._v}
             };
             this.diffTransport.send(JSON.stringify(OTW));
             this._lastTransmit = clone(this.data);
