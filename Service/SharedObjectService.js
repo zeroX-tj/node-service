@@ -31,12 +31,14 @@ class SharedObjectService{
     notify(){
         doValidate(this.endpoint, this.data);
         var diffs = differ(this._lastTransmit, this.data);
-        var OTW = {
-            endpoint: "_SO_" + this.endpoint.name,
-            message: diffs
-        };
-        this.diffTransport.send(JSON.stringify(OTW));
-        this._lastTransmit = clone(this.data);
+        if (diffs) {
+            var OTW = {
+                endpoint: "_SO_" + this.endpoint.name,
+                message: diffs
+            };
+            this.diffTransport.send(JSON.stringify(OTW));
+            this._lastTransmit = clone(this.data);
+        }
     }
 }
 
