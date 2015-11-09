@@ -1,0 +1,19 @@
+{
+  "name": "node-service",
+  "version": "0.0.1",
+  "description": "Todo",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alexander Zuliani",
+  "license": "MIT",
+  "dependencies": {
+    "axon": "^2.0.2",
+    "deep-diff": "^0.3.3",
+    "zmq": "^2.13.0"
+  }
+}
