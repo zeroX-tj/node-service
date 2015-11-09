@@ -42,7 +42,7 @@ class SharedObjectClient extends EventEmitter{
                 this.delay += new Date() - new Date(data.message.now);
                 this.delayCount++;
                 if (this.delayCount % 10 == 0){
-                    console.log("Average time: " + this.delay+10);
+                    console.log("Average time: " + (this.delay/10) + "ms");
                     this.delay = 0;
                 }
                 this.emit('update', old, this.data, diffs);
