@@ -75,7 +75,7 @@ class Service {
                 case 'RPC':
                     var handler = this.handlers[endpoint.name];
                     if (!handler)
-                        throw "Missing handler: " + name;
+                        throw "Missing handler: " + endpoint.name;
                     this.RPCServices[endpoint.name] = new RPCService(endpoint, handler);
                     break;
                 case 'Source':
