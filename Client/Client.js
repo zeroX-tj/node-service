@@ -40,7 +40,7 @@ class Client {
         this.transports.source = sock;
         sock.connect(hostname);
         sock.subscribe("");
-        sock.on('message', this._sourceCallback.bind(this));
+        //sock.on('message', this._sourceCallback.bind(this));
     }
 
     _setupSink(hostname){
