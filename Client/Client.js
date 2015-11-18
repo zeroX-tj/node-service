@@ -40,6 +40,7 @@ class Client {
         this.transports.source = sock;
         sock.connect(hostname);
         sock.subscribe("");
+        sock.setMaxListeners(Object.keys(this.descriptor.endpoints.filter((endp) => { endp.type == "Source" })).length);
         //sock.on('message', this._sourceCallback.bind(this));
     }
 
