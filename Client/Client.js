@@ -39,8 +39,7 @@ class Client {
         var sock = new zmq.socket('sub');
         this.transports.source = sock;
         sock.connect(hostname);
-        sock.subscribe("");
-        //sock.on('message', this._sourceCallback.bind(this));
+        sock.on('message', this._sourceCallback.bind(this));
     }
 
     _setupSink(hostname){
@@ -49,8 +48,9 @@ class Client {
         sock.connect(hostname);
     }
 
-    _sourceCallback(message){
-        // TODO: pass message to eventemitter
+    _sourceCallback(endpoint, message){
+        var data = JSON.parse(message);
+        this[endpoint]._processMessage(data);
     }
 
     _setupRpc(hostname){
@@ -70,6 +70,7 @@ class Client {
                     break;
                 case 'SharedObject':
                     this[endpoint.name] = new SharedObjectClient(endpoint, this.transports);
+                    this['_SO_'+endpoint.name] = this[endpoint.name];
                     break;
                 default:
                     throw "Unknown endpoint type.";

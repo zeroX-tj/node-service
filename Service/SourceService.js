@@ -16,7 +16,7 @@ class SourceService{
             endpoint: this.endpoint.name,
             message: message
         };
-        this.transport.send(JSON.stringify(OTW));
+        this.transport.send([OTW.endpoint, JSON.stringify(OTW)]);
     }
 }
 

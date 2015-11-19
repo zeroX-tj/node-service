@@ -38,7 +38,7 @@ class SharedObjectService{
                 endpoint: "_SO_" + this.endpoint.name,
                 message: {diffs, v: this._v, now}
             };
-            this.diffTransport.send(JSON.stringify(OTW));
+            this.diffTransport.send([OTW.endpoint,JSON.stringify(OTW)]);
             this._lastTransmit = clone(this.data);
         }
     }
