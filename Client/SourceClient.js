@@ -11,12 +11,10 @@ class SourceClient extends EventEmitter{
         if (!this.transport)
             throw "Trying to construct Source endpoint without Source transport";
 
-        this.transport.on('message', (data) => { this._processMessage(data); });
+        transports.source.subscribe(this.endpoint.name);
     }
 
     _processMessage(data){
-        data = JSON.parse(data);
-
         if (this.endpoint.name == data.endpoint){
             var obj = doValidation(this.endpoint, data.message);
             this.emit('message',obj);

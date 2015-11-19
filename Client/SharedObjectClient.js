@@ -18,13 +18,11 @@ class SharedObjectClient extends EventEmitter{
         this.delay = 0;
         this.endpoint = endpoint;
         this.initTransport = transports.rpc;
-        transports.source.on('message', this._processSource.bind(this));
-
+        transports.source.subscribe("_SO_" + this.endpoint.name);
         this._init();
     }
 
-    _processSource(data){
-        data = JSON.parse(data.toString());
+    _processMessage(data){
         if (data.endpoint == "_SO_" + this.endpoint.name){
 
             if (data.message.v == (this._v+1)) {

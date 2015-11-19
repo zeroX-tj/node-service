@@ -109,16 +109,17 @@ var c = new service.Client(descriptor);
 /**
  * RPC Test
  */
+/*
 setTimeout(()=> {
     c.RPCTest.call("Hello", function (err, res) {
         console.log("Server answered:", res);
     });
 },5000);
-/*
+*/
 /**
  * Source test
  */
-/*
+
 c.Sourcetest.on('message', function(msg){
     console.log("Got a message:", msg);
 });
@@ -129,7 +130,7 @@ setInterval(function() {
         rand: Math.random()
     });
 },2000);
-*/
+
 
 /**
  * SharedObject test
