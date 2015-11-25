@@ -29,7 +29,7 @@ class SharedObjectClient extends EventEmitter{
 
                 var old = clone(this.data);
 
-                var diffs = data.message.diffs;
+                var diffs = data.message.diffs.reverse(); // Reverse for array delete issues
                 for (let diff of diffs) {
                     differ.applyChange(this.data, true, diff);
                 }
