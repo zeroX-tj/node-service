@@ -12,7 +12,7 @@ class SourceClient extends EventEmitter{
             throw "Trying to construct Source endpoint without Source transport";
     }
 
-    subscribe = function(){
+    subscribe(){
         this.transport.subscribe(this.endpoint.name);
     };
 
