@@ -105,7 +105,7 @@ var initials = {
 
 var s = new service.Service(descriptor, handlers, initials);
 var c = new service.Client(descriptor);
-
+c.Sourcetest.subscribe();
 /**
  * RPC Test
  */
@@ -143,7 +143,7 @@ c.SO.on('init',()=>{
 c.SO.on('update',(oldVal, newVal, diffs) => {
     console.log("Client object was updated:", c.SO.data);
 });
-
+c.SO.subscribe()
 setInterval(function() {
     s.SO.data.rand = Math.random();
     s.SO.data.now = new Date();

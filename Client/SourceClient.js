@@ -11,7 +11,9 @@ class SourceClient extends EventEmitter{
         if (!this.transport)
             throw "Trying to construct Source endpoint without Source transport";
 
-        transports.source.subscribe(this.endpoint.name);
+        this.subscribe = function(){
+            transports.source.subscribe(this.endpoint.name);
+        };
     }
 
     _processMessage(data){
