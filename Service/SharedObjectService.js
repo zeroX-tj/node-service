@@ -28,7 +28,7 @@ var getSchemaForPath = function (endpoint, pathArr, i) {
     }
 
     var property = pathArr.splice(0, 1)[0];
-    if (!endpoint[prop_type][property]) {
+    if (endpoint[prop_type] && !endpoint[prop_type][property]) {
         if (prop_type == 'items') {
             return getSchemaForPath(endpoint[prop_type], pathArr, i);
         } else {
@@ -36,7 +36,10 @@ var getSchemaForPath = function (endpoint, pathArr, i) {
             if (endpoints && endpoints[0] == '*') property = '*';
             return getSchemaForPath(endpoint[prop_type][property], pathArr, i);
         }
-    } else return getSchemaForPath(endpoint[prop_type][property], pathArr, i);
+    } else {
+        if(endpoint[prop_type] && endpoint[prop_type][property]) return getSchemaForPath(endpoint[prop_type][property], pathArr, i);
+        else return getSchemaForPath({}, [], 1);
+    }
 }
 
 class SharedObjectService{
