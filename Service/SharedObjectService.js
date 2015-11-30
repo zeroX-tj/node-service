@@ -34,7 +34,8 @@ var getSchemaForPath = function (endpoint, pathArr, i) {
         } else {
             var endpoints = Object.keys(endpoint[prop_type]);
             if (endpoints && endpoints[0] == '*') property = '*';
-            return getSchemaForPath(endpoint[prop_type][property], pathArr, i);
+            if(endpoint[prop_type][property]) return getSchemaForPath(endpoint[prop_type][property], pathArr, i);
+            else return getSchemaForPath({}, [], 1);
         }
     } else {
         if(endpoint[prop_type] && endpoint[prop_type][property]) return getSchemaForPath(endpoint[prop_type][property], pathArr, i);
