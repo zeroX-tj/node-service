@@ -43,8 +43,7 @@ module.exports.SourceValidation = function _doValidation(endpoint, obj){
     return r.data;
 };
 
-module.exports.SharedObjectValidation = function _doValidation(endpoint, obj){
-    var schema = endpoint.objectSchema;
+module.exports.SharedObjectValidation = function _doValidation(schema, obj){
     if (!schema){
         console.error("There's no schema for SharedObject " + endpoint.name + ". Fix this!");
         return obj;
