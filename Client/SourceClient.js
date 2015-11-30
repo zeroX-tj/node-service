@@ -18,8 +18,7 @@ class SourceClient extends EventEmitter{
 
     _processMessage(data){
         if (this.endpoint.name == data.endpoint){
-            var obj = doValidation(this.endpoint, data.message);
-            this.emit('message',obj);
+            this.emit('message',data.message);
         }
     }
 }
