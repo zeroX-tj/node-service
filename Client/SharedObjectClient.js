@@ -40,7 +40,6 @@ class SharedObjectClient extends EventEmitter{
 
                 this._v = data.message.v;
 
-                this._validate();
                 this.delay += new Date() - new Date(data.message.now);
                 this.delayCount++;
                 if (this.delayCount % 10 == 0){
