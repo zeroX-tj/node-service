@@ -64,7 +64,7 @@ function _getSubsForHint(schema, obj, hint){
             break; // On delete, validate entire parent. Otherwise possible missing items may not be caught.
         }
 
-        obj = obj[hint[i]Recurse ];
+        obj = obj[hint[i]];
 
         if (schema.type == 'object'){
             if (hint[i] in schema.properties){
