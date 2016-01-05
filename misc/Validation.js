@@ -17,7 +17,7 @@ module.exports.RPCValidation = function _doValidation(endpoint, inout, obj){
         var validation = inspector.validate(schema, obj);
 
         if (!validation.valid){
-            throw new Error("Validation failed! " + JSON.stringify(validation));
+            throw new Error("Validation failed! " + validation.format());
         }
     }
 };
@@ -32,7 +32,7 @@ module.exports.SourceValidation = function _doValidation(endpoint, obj){
     var validation = inspector.validate(schema, obj);
 
     if (!validation.valid){
-        throw new Error("Validation failed! " + JSON.stringify(validation));
+        throw new Error("Validation failed! " + validation.format());
     }
 };
 
@@ -53,7 +53,7 @@ module.exports.SharedObjectValidation = function _doValidation(endpoint, obj, hi
     var validation = inspector.validate(schema, obj);
 
     if (!validation.valid){
-        throw new Error("Validation failed! " + JSON.stringify(validation));
+        throw new Error("Validation failed! " + validation.format());
     }
 };
 
