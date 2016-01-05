@@ -1,4 +1,5 @@
 "use strict";
+
 require('json.date-extensions');
 JSON.useDateParser();
 

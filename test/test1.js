@@ -99,7 +99,7 @@ var initials = {
     SO: {
         message: "Last thing you said was *NOTHING*",
         rand: 0,
-        now: 0
+        now: new Date()
     }
 };
 

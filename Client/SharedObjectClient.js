@@ -72,7 +72,7 @@ class SharedObjectClient extends EventEmitter{
     }
 
     _validate(){
-        this.data = doValidation(this.endpoint,this.data);
+        doValidation(this.endpoint,this.data);
     }
 }
 

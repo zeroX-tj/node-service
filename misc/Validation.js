@@ -13,48 +13,72 @@ module.exports.RPCValidation = function _doValidation(endpoint, inout, obj){
 
     if (!schema){
         console.error("There's no schema for RPC Call " + endpoint.name + ". Fix this!");
-        return obj;
     }else {
-        // Sanitise first for date handling.
-        var r = inspector.sanitize(schema, obj);
-        var validation = inspector.validate(schema, r.data);
+        var validation = inspector.validate(schema, obj);
+
         if (!validation.valid){
             throw new Error("Validation failed! " + JSON.stringify(validation));
         }
-
-        return r.data;
     }
 };
 
 module.exports.SourceValidation = function _doValidation(endpoint, obj){
     var schema = endpoint.messageSchema;
+
     if (!schema){
         console.error("There's no schema for Source " + endpoint.name + ". Fix this!");
-        return obj;
     }
 
-    var r = inspector.sanitize(schema, obj);
-    var validation = inspector.validate(schema, r.data);
+    var validation = inspector.validate(schema, obj);
 
     if (!validation.valid){
         throw new Error("Validation failed! " + JSON.stringify(validation));
     }
-
-    return r.data;
 };
 
-module.exports.SharedObjectValidation = function _doValidation(schema, obj){
-    if (!schema){
+module.exports.SharedObjectValidation = function _doValidation(endpoint, obj, hint){
+    if (!endpoint.objectSchema){
         console.error("There's no schema for SharedObject " + endpoint.name + ". Fix this!");
-        return obj;
     }
 
-    var r = inspector.sanitize(schema, obj);
-    var validation = inspector.validate(schema, r.data);
+    if (!hint) {
+        hint = [];
+    }
+
+    var subs = _getSubsForHint(endpoint.objectSchema, obj, hint);
+
+    var schema = subs.schema;
+    obj = subs.obj;
+
+    var validation = inspector.validate(schema, obj);
 
     if (!validation.valid){
         throw new Error("Validation failed! " + JSON.stringify(validation));
     }
-
-    return r.data;
 };
+
+function _getSubsForHint(schema, obj, hint){
+    var i = 0;
+    while(i < hint.length){
+        if (!(hint[i] in obj)) {
+            break; // On delete, validate entire parent. Otherwise possible missing items may not be caught.
+        }
+
+        if (schema.type == 'object'){
+            if (hint[i] in schema.properties){
+                schema = schema.properties[hint[i]];
+            }else if ('*' in schema.properties){
+                schema = schema.properties['*'];
+            }
+        }else if (schema.type == 'array'){
+            schema = schema.items;
+        }else{
+            // Hinting on anything else is not currently supported, crash on possible weirdness.
+            throw new Error("Please only do hinting on objects/arrays.");
+        }
+
+        i++;
+    }
+
+    return {schema, obj};
+}

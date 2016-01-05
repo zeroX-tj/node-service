@@ -1,47 +1,8 @@
 "use strict";
 
-var differ = require("deep-diff");
 var clone = require("../misc/clone");
+var diffWithHint = require("../misc/diffWithHint");
 var doValidate = require("../misc/Validation").SharedObjectValidation;
-
-var getEntryForPath = function (data, pathArr) {
-    var nPathArr = JSON.parse(JSON.stringify(pathArr));
-    if (pathArr.length == 0) return data;
-    var property = nPathArr.splice(0, 1)[0];
-    var ndata = data[property];
-    return getEntryForPath(ndata, nPathArr)
-}
-
-var getSchemaForPath = function (endpoint, pathArr, i) {
-    if (pathArr.length == 0) return endpoint;
-    if (!i) {
-        i = 1;
-        endpoint = endpoint.objectSchema;
-    }
-    else i++;
-
-    var prop_type;
-    if (endpoint.type == 'array') {
-        prop_type = 'items'
-    } else if (endpoint.type == 'object') {
-        prop_type = 'properties'
-    }
-
-    var property = pathArr.splice(0, 1)[0];
-    if (endpoint[prop_type] && !endpoint[prop_type][property]) {
-        if (prop_type == 'items') {
-            return getSchemaForPath(endpoint[prop_type], pathArr, i);
-        } else {
-            var endpoints = Object.keys(endpoint[prop_type]);
-            if (endpoints && endpoints[0] == '*') property = '*';
-            if(endpoint[prop_type][property]) return getSchemaForPath(endpoint[prop_type][property], pathArr, i);
-            else return getSchemaForPath({}, [], 1);
-        }
-    } else {
-        if(endpoint[prop_type] && endpoint[prop_type][property]) return getSchemaForPath(endpoint[prop_type][property], pathArr, i);
-        else return getSchemaForPath({}, [], 1);
-    }
-}
 
 class SharedObjectService{
     constructor(endpoint, transports, initial){
@@ -67,22 +28,16 @@ class SharedObjectService{
         }
     }
 
-    notify(){
+    notify(hint){
         var now = new Date();
-        var diffs = differ(this._lastTransmit, this.data);
+
+        if (!hint)
+            hint = [];
+
+        doValidate(this.endpoint, this.data, hint);
+        var diffs = diffWithHint(this._lastTransmit, this.data, hint);
+
         if (diffs) {
-            diffs.forEach((change)=>{
-                var dataEntry = getEntryForPath(this.data, change.path);
-                if(change.kind == "N" || change.kind == "E") {
-                    var dataSchema = getSchemaForPath(this.endpoint, change.path);
-                    dataEntry = doValidate(dataSchema, change.rhs)
-                }
-                if(change.kind == "A" || change.kind == "D") {
-                    dataEntry = getEntryForPath(this.data, [change.path[0]]);
-                    dataEntry = doValidate(this.endpoint.objectSchema.properties['*'], dataEntry)
-                }
-            })
-            diffs = differ(this._lastTransmit, this.data);
             this._v++;
             var OTW = {
                 endpoint: "_SO_" + this.endpoint.name,
