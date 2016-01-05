@@ -11,6 +11,7 @@ class RPCClient {
     }
 
     call(input, callback){
+        doValidation(this.endpoint, 'input', input);
         this.transport.send({
             endpoint: this.endpoint.name,
             input: JSON.stringify(input)
