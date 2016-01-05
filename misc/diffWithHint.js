@@ -19,9 +19,11 @@ module.exports = function diffWithHint(lhs, rhs, hint){
     var hintUsed = hint.slice(0,i);
 
     var diffs = differ(lhs, rhs);
-    diffs.forEach(function(diff){
-        diff.path = hintUsed.concat(diff.path);
-    });
+    if (diffs) {
+        diffs.forEach(function (diff) {
+            diff.path = hintUsed.concat(diff.path);
+        });
+    }
 
     return diffs;
 };
