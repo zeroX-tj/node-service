@@ -17,7 +17,7 @@ class RPCClient {
         }, (answer) => {
             answer = JSON.parse(answer);
             if (!answer.err)
-                answer.res = doValidation(this.endpoint, 'output', answer.res);
+                doValidation(this.endpoint, 'output', answer.res);
             callback(answer.err, answer.res);
         });
     }

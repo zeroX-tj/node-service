@@ -14,12 +14,12 @@ class RPCService{
 
         var req = JSON.parse(input.input);
 
-        req = doValidation(this.endpoint, 'input', req);
+        doValidation(this.endpoint, 'input', req);
 
         this.handler(req, (err, res) => {
 
             if (!err){
-                res = doValidation(this.endpoint, 'output', res);
+                doValidation(this.endpoint, 'output', res);
             }
 
             var reply = JSON.stringify({err,res});

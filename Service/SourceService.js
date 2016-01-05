@@ -11,7 +11,7 @@ class SourceService{
     }
 
     send(message){
-        message = doValidation(this.endpoint, message);
+        doValidation(this.endpoint, message);
         var OTW = {
             endpoint: this.endpoint.name,
             message: message
