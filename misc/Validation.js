@@ -71,6 +71,8 @@ function _getSubsForHint(schema, obj, hint){
                 schema = schema.properties[hint[i]];
             }else if ('*' in schema.properties){
                 schema = schema.properties['*'];
+            }else{
+                throw new Error("Unknown property, and no catch all!")
             }
         }else if (schema.type == 'array'){
             schema = schema.items;
