@@ -51,7 +51,7 @@ class SharedObjectClient extends EventEmitter{
 
             this.timeSum += new Date() - this.timeBuffer.shift();
             this.timeCount++;
-            if (this.timeCount == 1000){
+            if (this.timeCount == 10){
                 console.log("Average time: " + (this.timeSum/(10000)) + " ms");
                 this.timeSum = 0;
                 this.timeCount = 0;
