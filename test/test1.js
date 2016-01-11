@@ -48,16 +48,16 @@ var SharedObjectSchema = {
 var descriptor = {
     transports: {
         source: {
-            client: "tcp://127.0.0.1:13001",
-            server: "tcp://127.0.0.1:13001"
+            client: "tcp://127.0.0.1:14001",
+            server: "tcp://127.0.0.1:14001"
         },
         sink: {
-            client: "tcp://127.0.0.1:13002",
-            server: "tcp://127.0.0.1:13002"
+            client: "tcp://127.0.0.1:14002",
+            server: "tcp://127.0.0.1:14002"
         },
         rpc: {
-            client: "tcp://127.0.0.1:13003",
-            server: "tcp://127.0.0.1:13003"
+            client: "tcp://127.0.0.1:14003",
+            server: "tcp://127.0.0.1:14003"
         }
     },
     endpoints: [

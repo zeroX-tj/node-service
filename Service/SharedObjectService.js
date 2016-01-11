@@ -1,8 +1,8 @@
 "use strict";
 
 var clone = require("../misc/clone");
-var diffWithHint = require("../misc/diffWithHint");
 var doValidate = require("../misc/Validation").SharedObjectValidation;
+var differ = require("deep-diff");
 
 class SharedObjectService{
     constructor(endpoint, transports, initial){
@@ -35,7 +35,7 @@ class SharedObjectService{
             hint = [];
 
         doValidate(this.endpoint, this.data, hint);
-        var diffs = diffWithHint(this._lastTransmit, this.data, hint);
+        var diffs = diffAndApplyWithHint(this._lastTransmit, this.data, hint);
 
         if (diffs) {
             this._v++;
@@ -44,9 +44,40 @@ class SharedObjectService{
                 message: {diffs, v: this._v, now}
             };
             this.diffTransport.send([OTW.endpoint,JSON.stringify(OTW)]);
-            this._lastTransmit = clone(this.data);
         }
     }
 }
+
+function diffAndApplyWithHint(lhs, rhs, hint){
+    var lhsWithHint = lhs;
+    var rhsWithHint = rhs;
+    var i = 0;
+
+    while(i < hint.length){
+        // Stop if add or delete.
+        if (!(hint in lhsWithHint) || !(hint in rhsWithHint)){
+            break
+        }
+
+        lhsWithHint = lhsWithHint[hint[i]];
+        rhsWithHint = rhsWithHint[hint[i]];
+        i++;
+    }
+
+    var hintUsed = hint.slice(0,i);
+
+
+    var diffs = differ(lhs, rhs);
+    if (diffs) {
+        diffs.reverse().forEach(function (diff) {
+            diff = clone(diff);
+            differ.applyChange(lhs, rhs, diff);
+            diff.path = hintUsed.concat(diff.path);
+        });
+    }
+
+    return diffs;
+
+};
 
 module.exports = SharedObjectService;
