@@ -11,14 +11,10 @@ class SharedObjectClient extends EventEmitter{
         if (!transports.rpc || !transports.source)
             throw new Error("Shared objects need both Source and RPC transports to be configured");
 
-        this.data = {};
-        this._v = 0;
-        this.ready = false;
-        this.delayCount = 0;
-        this.delay = 0;
         this.endpoint = endpoint;
         this.initTransport = transports.rpc;
         this.updateTransport = transports.source;
+
         this._init();
     }
 
@@ -28,51 +24,82 @@ class SharedObjectClient extends EventEmitter{
 
     _processMessage(data){
         if (data.endpoint == "_SO_" + this.endpoint.name){
-
-            if (data.message.v == (this._v+1)) {
-
-                var old = clone(this.data);
-
-                var diffs = data.message.diffs.reverse(); // Reverse for array delete issues
-                for (let diff of diffs) {
-                    differ.applyChange(this.data, true, diff);
-                }
-
-                this._v = data.message.v;
-
-                this.delay += new Date() - new Date(data.message.now);
-                this.delayCount++;
-                if (this.delayCount % 10 == 0){
-                    console.log("Average time: " + (this.delay/10) + "ms");
-                    this.delay = 0;
-                }
-                this.emit('update', old, this.data, diffs);
-
-            }else{
-
-                console.error("Missed a version, refetching.");
-                this.ready = false;
-                this._init();
-
+            var idx = data.message.v - (this._v + 1);
+            if (idx < 0){
+                console.error("Bad version! Reinit!");
+                return this._init();
             }
+            this.procBuffer[idx] = data.message.diffs;
+            this.timeBuffer[idx] = data.message.now;
+
+            this.outstandingDiffs++;
+            process.nextTick(this._tryApply.bind(this));
+        }
+    }
+
+    _tryApply(){
+        var totalDiffs = [];
+
+        while(!!this.procBuffer[0]){
+            var diffs = this.procBuffer.shift().reverse();
+            this.outstandingDiffs--;
+            totalDiffs = diffs.concat(totalDiffs);
+
+            for (let diff of diffs){
+                differ.applyChange(this.data, true, diff);
+            }
+
+            this.timeSum += new Date() - this.timeBuffer.shift();
+            this.timeCount++;
+            if (this.timeCount == 1000){
+                console.log("Average time: " + (this.timeSum/(10000)) + " ms");
+                this.timeSum = 0;
+                this.timeCount = 0;
+            }
+
+            this._v++;
+        }
+
+        if (totalDiffs.length > 0) {
+            this.emit('update', totalDiffs);
+        }else if (this.ready && this.outstandingDiffs > 10){
+            console.error("Too many outstanding diffs, missed a version. Reinit.");
+            this._init();
         }
     }
 
     _init(){
+
+        this.data = {};
+        this._v = 0;
+        this.procBuffer = [];
+        this.timeBuffer = [];
+
+        this.timeSum = 0;
+        this.timeCount = 0;
+
+        this.outstandingDiffs = 0;
+
+        this.ready = false;
+
         this.initTransport.send({
             endpoint: "_SO_" + this.endpoint.name,
             input: "init"
         }, (answer) => {
             this.data = answer.res.data;
             this._v = answer.res.v;
-            this._validate();
+            console.log("Init installed version",this._v);
+            this.procBuffer.splice(0,this._v);
+            this.timeBuffer.splice(0,this._v);
+            this.outstandingDiffs = 0;
+            for (let i of this.procBuffer){
+                if (!!i)
+                    this.outstandingDiffs++;
+            }
             this.ready = true;
+            this._tryApply();
             this.emit('init');
         });
-    }
-
-    _validate(){
-        doValidation(this.endpoint,this.data);
     }
 }
 
