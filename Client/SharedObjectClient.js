@@ -41,7 +41,8 @@ class SharedObjectClient extends EventEmitter{
         var totalDiffs = [];
 
         while(!!this.procBuffer[0]){
-            var diffs = this.procBuffer.shift().reverse();
+            // Diffs are already reversed by Server!
+            var diffs = this.procBuffer.shift();
             this.outstandingDiffs--;
             totalDiffs = diffs.concat(totalDiffs);
 

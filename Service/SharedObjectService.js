@@ -35,8 +35,8 @@ class SharedObjectService{
             hint = [];
 
         doValidate(this.endpoint, this.data, hint);
-        var diffs = diffAndApplyWithHint(this._lastTransmit, this.data, hint);
 
+        var diffs = diffAndReverseAndApplyWithHint(this._lastTransmit, this.data, hint);
         if (diffs) {
             this._v++;
             var OTW = {
@@ -48,7 +48,7 @@ class SharedObjectService{
     }
 }
 
-function diffAndApplyWithHint(lhs, rhs, hint){
+function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
     var lhsWithHint = lhs;
     var rhsWithHint = rhs;
     var i = 0;
@@ -68,6 +68,7 @@ function diffAndApplyWithHint(lhs, rhs, hint){
 
 
     var diffs = differ(lhs, rhs);
+
     if (diffs) {
         diffs.reverse().forEach(function (diff) {
             diff = clone(diff);
@@ -77,7 +78,6 @@ function diffAndApplyWithHint(lhs, rhs, hint){
     }
 
     return diffs;
-
-};
+}
 
 module.exports = SharedObjectService;
