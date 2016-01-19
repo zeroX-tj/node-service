@@ -1,6 +1,5 @@
 "use strict";
 
-var doValidation = require("../misc/Validation").SourceValidation;
 var EventEmitter = require("events").EventEmitter;
 
 class SourceClient extends EventEmitter{

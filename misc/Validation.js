@@ -36,6 +36,20 @@ module.exports.SourceValidation = function _doValidation(endpoint, obj){
     }
 };
 
+module.exports.PushValidation = function _doValidation(endpoint, obj){
+    var schema = endpoint.messageSchema;
+
+    if (!schema){
+        console.error("There's no schema for Source " + endpoint.name + ". Fix this!");
+    }
+
+    var validation = inspector.validate(schema, obj);
+
+    if (!validation.valid){
+        throw new Error("Validation failed! " + validation.format());
+    }
+};
+
 module.exports.SharedObjectValidation = function _doValidation(endpoint, obj, hint){
     if (!endpoint.objectSchema){
         console.error("There's no schema for SharedObject " + endpoint.name + ". Fix this!");

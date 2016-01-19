@@ -109,13 +109,13 @@ c.Sourcetest.subscribe();
 /**
  * RPC Test
  */
-/*
+
 setTimeout(()=> {
     c.RPCTest.call("Hello", function (err, res) {
         console.log("Server answered:", res);
     });
 },5000);
-*/
+
 /**
  * Source test
  */

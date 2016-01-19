@@ -6,6 +6,7 @@ var axon = require("axon");
 var RPCService = require("./RPCService");
 var SourceService = require("./SourceService");
 var SharedObjectService = require("./SharedObjectService");
+var PushService = require("./PushService");
 
 class Service {
     constructor(descriptor, handlers, initials){
@@ -30,6 +31,8 @@ class Service {
                 case 'rpc':
                     this._setupRpc(this.descriptor.transports.rpc.server);
                     break;
+                case 'pushpull':
+                    this._setupPushPull(this.descriptor.transports.pushpull.server);
                 default:
                     break;
             }
@@ -67,6 +70,12 @@ class Service {
             handler.call(input, reply);
     }
 
+    _setupPushPull(hostname){
+        var sock = new zmq.socket('push');
+        sock.bind(hostname);
+        this.transports.pushpull = sock;
+    }
+
     _setupEndpoints(){
         this.RPCServices = {};
 
@@ -83,6 +92,9 @@ class Service {
                     break;
                 case 'SharedObject':
                     this[endpoint.name] = new SharedObjectService(endpoint, this.transports, this.initials[endpoint.name]);
+                    break;
+                case 'PushPull':
+                    this[endpoint.name] = new PushService(endpoint, this.transports);
                     break;
                 default:
                     throw "Unknown endpoint type";

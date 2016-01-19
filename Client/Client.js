@@ -6,10 +6,15 @@ var axon = require("axon");
 var RPCClient = require("./RPCClient");
 var SourceClient = require("./SourceClient");
 var SharedObjectClient = require("./SharedObjectClient");
-
+var PullClient = require("./PullClient");
 
 class Client {
-    constructor(descriptor){
+    constructor(descriptor, workers){
+        if (!workers){
+            workers = {}
+        }
+
+        this.workers = workers;
         this.descriptor = descriptor;
         this.transports = {};
 
@@ -28,6 +33,9 @@ class Client {
                     break;
                 case 'rpc':
                     this._setupRpc(this.descriptor.transports.rpc.client);
+                    break;
+                case 'pushpull':
+                    this._setupPull();
                     break;
                 default:
                     break;
@@ -59,6 +67,21 @@ class Client {
         this.transports.rpc = sock;
     }
 
+    _setupPull(hostname){
+        var sock = new zmq.socket("pull");
+        // DON'T CONNECT! Client must explicitly ask!
+        sock.on('message', this._pullCallback.bind(this));
+        this.transports.pushpull = sock;
+    }
+
+    _pullCallback(message){
+        if (!this.PullEndpoint){
+            throw new Error("Got a pull message, but ot Pull enpoint is connected!");
+        }
+
+        this.PullEndpoint._processMessage(JSON.parse(message));
+    }
+
     _setupEndpoints(){
         for(let endpoint of this.descriptor.endpoints){
             switch(endpoint.type){
@@ -71,6 +94,13 @@ class Client {
                 case 'SharedObject':
                     this[endpoint.name] = new SharedObjectClient(endpoint, this.transports);
                     this['_SO_'+endpoint.name] = this[endpoint.name];
+                    break;
+                case 'PushPull':
+                    if (this.PullEndpoint){
+                        throw new Error("Only a singly Pushpull endpoint can be constructed per service!");
+                    }
+                    this[endpoint.name] = new PullClient(endpoint, this.transports, this.descriptor.transports.pushpull.client);
+                    this.PullEndpoint = this[endpoint.name];
                     break;
                 default:
                     throw "Unknown endpoint type.";
