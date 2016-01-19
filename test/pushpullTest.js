@@ -28,6 +28,7 @@ var Server = new nodeservice.Service(descriptor, {}, {});
 
 var Client1 = new nodeservice.Client(descriptor);
 var Client2 = new nodeservice.Client(descriptor);
+
 Client1.Work.subscribe();
 Client2.Work.subscribe();
 

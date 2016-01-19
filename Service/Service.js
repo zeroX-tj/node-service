@@ -33,6 +33,7 @@ class Service {
                     break;
                 case 'pushpull':
                     this._setupPushPull(this.descriptor.transports.pushpull.server);
+                    break;
                 default:
                     break;
             }
@@ -72,7 +73,7 @@ class Service {
 
     _setupPushPull(hostname){
         var sock = new zmq.socket('push');
-        sock.bind(hostname);
+        sock.bindSync(hostname);
         this.transports.pushpull = sock;
     }
 
