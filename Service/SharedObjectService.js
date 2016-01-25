@@ -55,7 +55,7 @@ function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
 
     while(i < hint.length){
         // Stop if add or delete.
-        if (!(hint in lhsWithHint) || !(hint in rhsWithHint)){
+        if (!(hint[i] in lhsWithHint) || !(hint[i] in rhsWithHint)){
             break
         }
 
