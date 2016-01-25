@@ -46,6 +46,38 @@ class SharedObjectService{
             this.diffTransport.send([OTW.endpoint,JSON.stringify(OTW)]);
         }
     }
+
+    notify_full(hint){
+        var now = new Date();
+
+        if (!hint)
+            hint = [];
+
+        doValidate(this.endpoint, this.data, hint);
+
+        var i = 0;
+        var data = this.data;
+        while(i < hint.length){
+            // Stop if add or delete.
+            if (!(hint in data)){
+                data = null;
+                break
+            }
+            data = data[hint[i]];
+            i++;
+        }
+        if (data) {
+            var diff = {data, custom: true, hint};
+            this._v++;
+            var OTW = {
+                endpoint: "_SO_" + this.endpoint.name,
+                message: {diff, v: this._v, now}
+            };
+            this.diffTransport.send([OTW.endpoint,JSON.stringify(OTW)]);
+        }else{
+            // Emulate Delete
+        }
+    }
 }
 
 function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
