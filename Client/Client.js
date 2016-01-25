@@ -2,6 +2,7 @@
 
 var zmq = require("zmq");
 var axon = require("axon");
+var MonitoredSocket = require("./MonitoredSocket");
 
 var RPCClient = require("./RPCClient");
 var SourceClient = require("./SourceClient");
@@ -44,10 +45,12 @@ class Client {
     }
 
     _setupSource(hostname){
-        var sock = new zmq.socket('sub');
-        this.transports.source = sock;
-        sock.connect(hostname);
-        sock.on('message', this._sourceCallback.bind(this));
+        var msock = new MonitoredSocket('sub');
+        this.transports.source = msock.sock;
+        this.transports.source.connect(hostname);
+        this.transports.source.on('message', this._sourceCallback.bind(this));
+        msock.on('disconnected', this._sourceClosed.bind(this));
+        msock.on('connected', this._sourceConnected.bind(this));
     }
 
     _setupSink(hostname){
@@ -59,6 +62,26 @@ class Client {
     _sourceCallback(endpoint, message){
         var data = JSON.parse(message);
         this[endpoint]._processMessage(data);
+    }
+
+    _sourceConnected(){
+        // Loop endpoints
+        for(let endpoint of this.descriptor.endpoints) {
+            if (endpoint.type == 'SharedObject') {
+                console.log(endpoint.name, 'connected');
+                if(this[endpoint.name].ready == false) this[endpoint.name]._init();
+            }
+        }
+    }
+
+    _sourceClosed(){
+        // Loop endpoints
+        for(let endpoint of this.descriptor.endpoints) {
+            if (endpoint.type == 'SharedObject') {
+                console.log(endpoint.name, 'disconnected');
+                this[endpoint.name]._flushData();
+            }
+        }
     }
 
     _setupRpc(hostname){

@@ -69,6 +69,20 @@ class SharedObjectClient extends EventEmitter{
         }
     }
 
+    _flushData() {
+        this.data = {};
+        this._v = 0;
+        this.procBuffer = [];
+        this.timeBuffer = [];
+
+        this.timeSum = 0;
+        this.timeCount = 0;
+
+        this.outstandingDiffs = 0;
+
+        this.ready = false;
+    }
+
     _init(){
 
         this.data = {};
