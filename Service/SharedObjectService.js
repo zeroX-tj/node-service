@@ -67,12 +67,12 @@ function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
     var hintUsed = hint.slice(0,i);
 
 
-    var diffs = differ(lhs, rhs);
+    var diffs = differ(lhsWithHint, rhsWithHint);
 
     if (diffs) {
         diffs.reverse().forEach(function (diff) {
             diff = clone(diff);
-            differ.applyChange(lhs, rhs, diff);
+            differ.applyChange(lhsWithHint, rhsWithHint, diff);
             diff.path = hintUsed.concat(diff.path);
         });
     }
