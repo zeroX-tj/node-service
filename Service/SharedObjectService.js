@@ -69,15 +69,18 @@ function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
 
     var diffs = differ(lhsWithHint, rhsWithHint);
 
+    var reportDiffs = []; // Separate because of clone changes
+
     if (diffs) {
         diffs.reverse().forEach(function (diff) {
             diff = clone(diff);
             differ.applyChange(lhsWithHint, rhsWithHint, diff);
             diff.path = hintUsed.concat(diff.path);
+            reportDiffs.push(diff);
         });
     }
 
-    return diffs;
+    return reportDiffs;
 }
 
 module.exports = SharedObjectService;
