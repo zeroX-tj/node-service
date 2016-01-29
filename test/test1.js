@@ -31,7 +31,7 @@ var SourceSchema = {
 
 var SharedObjectSchema = {
     type: 'object',
-    properties:{
+    properties: {
         message: {
             type: 'string',
             pattern: /Last thing you said was .*/
@@ -82,10 +82,10 @@ var descriptor = {
 
 var lastMSG = "*NOTHING*";
 
-function RPCHandler(req,rep){
+function RPCHandler(req, rep) {
     console.log("Handler called");
     lastMSG = req;
-    rep(null,{
+    rep(null, {
         msg: "You said " + req,
         date: new Date()
     });
@@ -103,51 +103,60 @@ var initials = {
     }
 };
 
-var s = new service.Service(descriptor, handlers, initials);
 var c = new service.Client(descriptor);
-c.Sourcetest.subscribe();
-/**
- * RPC Test
- */
-
-setTimeout(()=> {
-    c.RPCTest.call("Hello", function (err, res) {
+// Should error with timeout
+console.log('Should error with timeout after 10 sec');
+c.RPCTest.call("Hello", function (err, res) {
+    if (err) {
+        console.error('Error:', err);
+    } else
         console.log("Server answered:", res);
+    var s = new service.Service(descriptor, handlers, initials);
+
+    c.Sourcetest.subscribe();
+    /**
+     * RPC Test
+     */
+
+    setTimeout(()=> {
+        c.RPCTest.call("Hello", function (err, res) {
+            console.log("Server answered:", res);
+        });
+    }, 5000);
+
+    /**
+     * Source test
+     */
+
+    c.Sourcetest.on('message', function (msg) {
+        console.log("Got a message:", msg);
     });
-},5000);
 
-/**
- * Source test
- */
+    setInterval(function () {
+        s.Sourcetest.send({
+            message: "This is a message",
+            rand: Math.random()
+        });
+    }, 2000);
 
-c.Sourcetest.on('message', function(msg){
-    console.log("Got a message:", msg);
-});
 
-setInterval(function() {
-    s.Sourcetest.send({
-        message: "This is a message",
-        rand: Math.random()
+    /**
+     * SharedObject test
+     */
+
+    c.SO.on('init', ()=> {
+        console.log("Client object was initialised:", c.SO.data);
     });
-},2000);
 
+    c.SO.on('update', (oldVal, newVal, diffs) => {
+        console.log("Client object was updated:", c.SO.data);
+    });
+    c.SO.subscribe()
+    setInterval(function () {
+        s.SO.data.rand = Math.random();
+        s.SO.data.now = new Date();
+        s.SO.data.message = "Last thing you said was " + lastMSG;
+        s.SO.notify();
+    }, 1000);
 
-/**
- * SharedObject test
- */
-
-c.SO.on('init',()=>{
-    console.log("Client object was initialised:",c.SO.data);
 });
-
-c.SO.on('update',(oldVal, newVal, diffs) => {
-    console.log("Client object was updated:", c.SO.data);
-});
-c.SO.subscribe()
-setInterval(function() {
-    s.SO.data.rand = Math.random();
-    s.SO.data.now = new Date();
-    s.SO.data.message = "Last thing you said was " + lastMSG;
-    s.SO.notify();
-},1000);
-

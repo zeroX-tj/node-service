@@ -12,14 +12,25 @@ class RPCClient {
 
     call(input, callback){
         doValidation(this.endpoint, 'input', input);
+        var answer_received = false;
+        var answer_timeout = setTimeout(() => {
+            if(!answer_received)
+                callback('timeout');
+                callback = null;
+                answer_received = null;
+        },10e3);
         this.transport.send({
             endpoint: this.endpoint.name,
             input: JSON.stringify(input)
         }, (answer) => {
+            answer_received = true;
+            clearTimeout(answer_timeout);
+            answer_timeout = null;
+
             answer = JSON.parse(answer);
             if (!answer.err)
                 doValidation(this.endpoint, 'output', answer.res);
-            callback(answer.err, answer.res);
+            if(callback) callback(answer.err, answer.res);
         });
     }
 
