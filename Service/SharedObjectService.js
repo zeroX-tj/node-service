@@ -3,14 +3,37 @@
 var clone = require("../misc/clone");
 var doValidate = require("../misc/Validation").SharedObjectValidation;
 var differ = require("deep-diff");
+var meta = require('meta-objects');
 
 class SharedObjectService{
     constructor(endpoint, transports, initial){
+        var t = {}
         if (!transports.rpc || !transports.source)
             throw new Error("Shared objects need both Source and RPC transports to be configured");
 
         doValidate(endpoint, initial);
-        this.data = initial;
+        var emitter = meta.tracer(function () {
+            //empty
+        }, 'Data');
+        this.data = new emitter.Data;
+        Object.keys(initial).forEach((key)=>{
+            this.data[key] = initial[key];
+        })
+        emitter.on('*', function(event, b){
+            if (event.property) {
+                if(event.type == 'set'){
+                    console.log(event)
+                }
+            } else {
+                if(typeof(event.target) == 'function') {
+                    console.log('Array func', event);
+                }else{
+                    console.log(event.type, event.path.join('.'));
+                    console.log(event)
+                }
+
+            }
+        });
         this._lastTransmit = clone(initial);
         this._v = 0;
         this.endpoint = endpoint;
@@ -34,10 +57,10 @@ class SharedObjectService{
         if (!hint)
             hint = [];
 
-        doValidate(this.endpoint, this.data, hint);
+        //doValidate(this.endpoint, this.data, hint);
 
-        var diffs = diffAndReverseAndApplyWithHint(this._lastTransmit, this.data, hint);
-        if (diffs) {
+        //var diffs = diffAndReverseAndApplyWithHint(this._lastTransmit, this.data, hint);
+        if (1==0) {
             this._v++;
             var OTW = {
                 endpoint: "_SO_" + this.endpoint.name,
