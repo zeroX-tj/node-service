@@ -73,9 +73,12 @@ function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
 
     if (diffs) {
         diffs.reverse().forEach(function (diff) {
-            diff = clone(diff);
+            var diff = clone(diff);
             differ.applyChange(lhsWithHint, rhsWithHint, diff);
-            diff.path = hintUsed.concat(diff.path);
+            if(diff.path)
+                diff.path = hintUsed.concat(diff.path);
+            else
+                diff.path = hintUsed;
             reportDiffs.push(diff);
         });
     }
