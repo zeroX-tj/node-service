@@ -1,8 +1,9 @@
 function applyDiff(data, diff){
+    console.log('APPLY DIFF')
 var obj = data;
-if(diff.ppath.length){
+if(diff.path.length){
     // sub-object
-    diff.ppath.forEach((field)=>{
+    diff.path.slice(0,diff.path.length-1).forEach((field)=>{
         obj = obj[field];
     });
 }
@@ -26,6 +27,10 @@ switch(diff.type){
         break;
     case 'shift':
         obj[diff.field].shift();
+        console.log('received', diff.type, diff.field, diff.value);
+        break;
+    case 'delete':
+        delete obj[diff.field];
         console.log('received', diff.type, diff.field, diff.value);
         break;
 
