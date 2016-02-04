@@ -29,7 +29,19 @@ class SharedObjectService{
         transports.rpc.on('message', this._processRPC.bind(this));
         this.diffTransport = transports.source;
     }
+    // Handle sets on data, else we lose the tracer!
+    set data (obj) {
+        Object.keys(this.data).forEach((key)=>{
+            delete this.data[key];
+        });
+        Object.keys(obj).forEach((key)=>{
+            this.data[key] = obj[key];
+        });
+    }
 
+    get data(){
+        return this.data;
+    }
     _processRPC(message, reply){
         if (message.endpoint == "_SO_" + this.endpoint.name){
             if (message.input == "init"){
@@ -47,12 +59,12 @@ class SharedObjectService{
     _handleChange(event) {
         if (event.property) {
             if (event.type == 'set') {
-                console.log('SET', event);
+                //console.log('SET', event);
                 this.updateRemote(event)
             }
         } else {
             if (event.type == 'apply' && ['pop','push','shift','unshift'].indexOf(event.path[event.path.length-1]) != -1){
-                console.log('Array func', event);
+                //console.log('Array func', event);
                 this.updateRemote(event)
             } else {
                 console.log(event.type, event.path.join('.'));
@@ -67,14 +79,14 @@ class SharedObjectService{
         var field = event.property;
         var value = event.value;
         var type = event.type;
-        console.log(path)
+        //console.log(path)
+
         if(!field){
             value = event.args;
             type = path.pop();
             field = path.pop();
-        }else{
-            path.push(event.property);
         }
+        path.push(field);
 
         var diffs = [{type, path, value, field}];
         console.log(diffs);
