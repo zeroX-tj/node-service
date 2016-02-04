@@ -17,11 +17,11 @@ class SharedObjectService{
 
         var emitter = meta.tracer(function () {
             //empty
-            this.data = {};
+            this.tracer_data = {};
         }, 'Data');
-        this.data = new emitter.Data().data;
+        this.tracer_data = new emitter.Data().tracer_data;
         Object.keys(initial).forEach((key)=>{
-            this.data[key] = initial[key];
+            this.tracer_data[key] = initial[key];
         })
         emitter.on('*', this._handleChange.bind(this));
         this._v = 0;
@@ -29,25 +29,25 @@ class SharedObjectService{
         transports.rpc.on('message', this._processRPC.bind(this));
         this.diffTransport = transports.source;
     }
-    // Handle sets on data, else we lose the tracer!
+    // Handle sets on tracer_data, else we lose the tracer!
     set data (obj) {
-        Object.keys(this.data).forEach((key)=>{
-            delete this.data[key];
+        Object.keys(this.tracer_data).forEach((key)=>{
+            delete this.tracer_data[key];
         });
         Object.keys(obj).forEach((key)=>{
-            this.data[key] = obj[key];
+            this.tracer_data[key] = obj[key];
         });
     }
 
     get data(){
-        return this.data;
+        return this.tracer_data;
     }
     _processRPC(message, reply){
         if (message.endpoint == "_SO_" + this.endpoint.name){
             if (message.input == "init"){
                 reply({err:null, res:{data: this._data, v: this._v}});
             }else{
-                throw "Got bad data on RPC channel";
+                throw "Got bad tracer_data on RPC channel";
             }
         }
     }
