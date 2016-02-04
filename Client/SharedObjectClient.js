@@ -3,6 +3,7 @@
 var EventEmitter = require("events").EventEmitter;
 var doValidation = require("../misc/Validation").SharedObjectValidation;
 var differ = require("deep-diff");
+var applyDiff = require('../misc/update').applyDiff;
 var clone = require("../misc/clone");
 
 class SharedObjectClient extends EventEmitter{
@@ -47,7 +48,7 @@ class SharedObjectClient extends EventEmitter{
             totalDiffs = diffs.concat(totalDiffs);
 
             for (let diff of diffs){
-                differ.applyChange(this.data, true, diff);
+                applyDiff(this.data, diff)
             }
 
             this.timeSum += new Date() - this.timeBuffer.shift();
@@ -62,6 +63,7 @@ class SharedObjectClient extends EventEmitter{
         }
 
         if (totalDiffs.length > 0) {
+            console.log('UPDATE DIFF')
             this.emit('update', totalDiffs);
         }else if (this.ready && this.outstandingDiffs > 10){
             console.error("Too many outstanding diffs, missed a version. Reinit.");
