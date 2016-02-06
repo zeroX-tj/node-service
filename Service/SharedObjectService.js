@@ -9,7 +9,6 @@ var meta = require('meta-objects');
 class SharedObjectService{
 
     constructor(endpoint, transports, initial){
-        this._data = initial;
         if (!transports.rpc || !transports.source)
             throw new Error("Shared objects need both Source and RPC transports to be configured");
 
@@ -22,7 +21,7 @@ class SharedObjectService{
         this.tracer_data = new emitter.Data().tracer_data;
         Object.keys(initial).forEach((key)=>{
             this.tracer_data[key] = initial[key];
-        })
+        });
         emitter.on('*', this._handleChange.bind(this));
         this._v = 0;
         this.endpoint = endpoint;
@@ -45,9 +44,9 @@ class SharedObjectService{
     _processRPC(message, reply){
         if (message.endpoint == "_SO_" + this.endpoint.name){
             if (message.input == "init"){
-                reply({err:null, res:{data: this._data, v: this._v}});
+                reply({err:null, res:{data: this.tracer_data, v: this._v}});
             }else{
-                throw "Got bad tracer_data on RPC channel";
+                throw "Got bad data on RPC channel";
             }
         }
     }
@@ -63,7 +62,7 @@ class SharedObjectService{
                 this.updateRemote(event)
             }
         } else {
-            if (event.type == 'apply' && ['pop','push','shift','unshift'].indexOf(event.path[event.path.length-1]) != -1){
+            if (event.type == 'apply' && ['pop','push','shift','unshift','delete'].indexOf(event.path[event.path.length-1]) != -1){
                 //console.log('Array func', event);
                 this.updateRemote(event)
             } else {
@@ -91,9 +90,6 @@ class SharedObjectService{
         var diffs = [{type, path, value, field}];
         console.log(diffs);
 
-        // update internal object
-        this._update(diffs);
-
         // Validate
         //doValidate(this.endpoint, this._data, path);
 
@@ -103,12 +99,6 @@ class SharedObjectService{
             message: { diffs,v: this._v, now}
         };
         this.diffTransport.send([OTW.endpoint,JSON.stringify(OTW)]);
-    }
-
-    _update(diffs){
-        for (let diff of diffs) {
-            applyDiff(this._data, diff);
-        }
     }
 }
 
