@@ -47,7 +47,7 @@ class SharedObjectClient extends EventEmitter{
             totalDiffs = diffs.concat(totalDiffs);
 
             for (let diff of diffs){
-                differ.patch(this.data, diff);
+                differ.patch(this.data, diff.patch);
             }
 
             this.timeSum += new Date() - this.timeBuffer.shift();

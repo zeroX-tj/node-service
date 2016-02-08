@@ -41,7 +41,7 @@ class SharedObjectService{
 
         doValidate(this.endpoint, this.data, hint);
 
-        var diffs = [jsondiffpatch.diff(this._lastTransmit, this.data, hint)];
+        var diffs = diffAndApplyWithHint(this._lastTransmit, this.data, hint);
         if (diffs) {
             this._v++;
             var OTW = {
@@ -53,7 +53,7 @@ class SharedObjectService{
     }
 }
 
-function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
+function diffAndApplyWithHint(lhs, rhs, hint){
     var lhsWithHint = lhs;
     var rhsWithHint = rhs;
     var i = 0;
@@ -72,23 +72,12 @@ function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
     var hintUsed = hint.slice(0,i);
 
 
-    var diffs = differ(lhsWithHint, rhsWithHint);
+    var diff = {
+        patch: jsondiffpatch.diff(lhsWithHint, rhsWithHint),
+        path: hintUsed
+    };
 
-    var reportDiffs = []; // Separate because of clone changes
-
-    if (diffs) {
-        diffs.reverse().forEach(function (diff) {
-            var diff = clone(diff);
-            differ.applyChange(lhsWithHint, rhsWithHint, diff);
-            if(diff.path)
-                diff.path = hintUsed.concat(diff.path);
-            else
-                diff.path = hintUsed;
-            reportDiffs.push(diff);
-        });
-    }
-
-    return reportDiffs;
+    return [diff];
 }
 
 module.exports = SharedObjectService;
