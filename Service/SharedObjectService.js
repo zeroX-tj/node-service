@@ -74,9 +74,12 @@ function diffAndApplyWithHint(lhs, rhs, hint){
 
     var diff = {
         patch: jsondiffpatch.diff(lhsWithHint, rhsWithHint),
-        path: hintUsed
+        path: hint,
+        hintUsed: hintUsed
     };
 
+    //lhsWithHint = jsondiffpatch.patch(lhsWithHint, diff.patch);
+console.log(diff.patch)
     return [diff];
 }
 

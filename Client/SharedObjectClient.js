@@ -47,7 +47,14 @@ class SharedObjectClient extends EventEmitter{
             totalDiffs = diffs.concat(totalDiffs);
 
             for (let diff of diffs){
-                differ.patch(this.data, diff.patch);
+                console.log(diff);
+                var data_obj = this.data;
+                if(diff.hintUsed.length){
+                    diff.hintUsed.forEach((path)=>{
+                        data_obj = data_obj[path];
+                    })
+                }
+                differ.patch(data_obj, diff.patch);
             }
 
             this.timeSum += new Date() - this.timeBuffer.shift();
