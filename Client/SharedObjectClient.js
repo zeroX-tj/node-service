@@ -2,7 +2,7 @@
 
 var EventEmitter = require("events").EventEmitter;
 var doValidation = require("../misc/Validation").SharedObjectValidation;
-var differ = require("deep-diff");
+var differ = require("jsondiffpatch");
 var clone = require("../misc/clone");
 
 class SharedObjectClient extends EventEmitter{
@@ -47,7 +47,7 @@ class SharedObjectClient extends EventEmitter{
             totalDiffs = diffs.concat(totalDiffs);
 
             for (let diff of diffs){
-                differ.applyChange(this.data, true, diff);
+                differ.patch(this.data, diff);
             }
 
             this.timeSum += new Date() - this.timeBuffer.shift();

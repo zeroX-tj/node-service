@@ -2,8 +2,13 @@
 
 var clone = require("../misc/clone");
 var doValidate = require("../misc/Validation").SharedObjectValidation;
-var differ = require("deep-diff");
-
+var jsondiffpatch = require("jsondiffpatch");
+// create a configured instance, match objects by name
+var diffpatcher = jsondiffpatch.create({
+    objectHash: function(obj) {
+        return obj.name || obj.id || obj._id || obj.selection_id || '$$index:' + index;
+    }
+});
 class SharedObjectService{
     constructor(endpoint, transports, initial){
         if (!transports.rpc || !transports.source)
@@ -36,7 +41,7 @@ class SharedObjectService{
 
         doValidate(this.endpoint, this.data, hint);
 
-        var diffs = diffAndReverseAndApplyWithHint(this._lastTransmit, this.data, hint);
+        var diffs = [jsondiffpatch.diff(this._lastTransmit, this.data, hint)];
         if (diffs) {
             this._v++;
             var OTW = {
