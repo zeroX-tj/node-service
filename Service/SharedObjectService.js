@@ -78,8 +78,8 @@ function diffAndApplyWithHint(lhs, rhs, hint){
         hintUsed: hintUsed
     };
 
-    //lhsWithHint = jsondiffpatch.patch(lhsWithHint, diff.patch);
-console.log(diff.patch)
+    jsondiffpatch.patch(lhsWithHint, diff.patch);
+
     return [diff];
 }
 
