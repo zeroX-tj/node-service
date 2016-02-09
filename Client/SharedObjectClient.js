@@ -47,7 +47,7 @@ class SharedObjectClient extends EventEmitter{
             totalDiffs = diffs.concat(totalDiffs);
 
             for (let diff of diffs){
-                console.log(diff);
+                //console.log(JSON.stringify(diff,null,2));
                 var data_obj = this.data;
                 if(diff.hintUsed.length){
                     diff.hintUsed.forEach((path)=>{

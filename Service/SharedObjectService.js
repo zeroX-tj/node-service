@@ -5,8 +5,8 @@ var doValidate = require("../misc/Validation").SharedObjectValidation;
 var jsondiffpatch = require("jsondiffpatch");
 // create a configured instance, match objects by name
 var diffpatcher = jsondiffpatch.create({
-    objectHash: function(obj) {
-        return obj.name || obj.id || obj._id || obj.selection_id || '$$index:' + index;
+    objectHash: function(obj, index) {
+        return obj.name || obj.id || obj._id || obj.selection_id || obj.seconds || '$$index:' + index;
     }
 });
 class SharedObjectService{
@@ -73,13 +73,14 @@ function diffAndApplyWithHint(lhs, rhs, hint){
 
 
     var diff = {
-        patch: jsondiffpatch.diff(lhsWithHint, rhsWithHint),
+        patch: diffpatcher.diff(lhsWithHint, JSON.parse(JSON.stringify(rhsWithHint))),
         path: hint,
         hintUsed: hintUsed
     };
 
     if(!diff.patch) return;
-    jsondiffpatch.patch(lhsWithHint, diff.patch);
+    //console.log('Created', JSON.stringify(diff, null, 2))
+    diffpatcher.patch(lhsWithHint, diff.patch);
 
     return [diff];
 }
