@@ -78,6 +78,7 @@ function diffAndApplyWithHint(lhs, rhs, hint){
         hintUsed: hintUsed
     };
 
+    if(!diff.patch) return;
     jsondiffpatch.patch(lhsWithHint, diff.patch);
 
     return [diff];
