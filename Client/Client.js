@@ -69,6 +69,7 @@ class Client {
         for(let endpoint of this.descriptor.endpoints) {
             if (endpoint.type == 'SharedObject') {
                 console.log(endpoint.name, 'connected');
+                this[endpoint.name].emit('connected')
                 if(this[endpoint.name].ready == false) this[endpoint.name]._init();
             }
         }
@@ -79,6 +80,7 @@ class Client {
         for(let endpoint of this.descriptor.endpoints) {
             if (endpoint.type == 'SharedObject') {
                 console.log(endpoint.name, 'disconnected');
+                this[endpoint.name].emit('disconnected')
                 this[endpoint.name]._flushData();
             }
         }

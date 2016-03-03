@@ -15,6 +15,9 @@ class SourceClient extends EventEmitter{
         this.transport.subscribe(this.endpoint.name);
     };
 
+    unsubscribe(){
+        this.transport.unsubscribe(this.endpoint.name);
+    };
     _processMessage(data){
         if (this.endpoint.name == data.endpoint){
             this.emit('message',data.message);

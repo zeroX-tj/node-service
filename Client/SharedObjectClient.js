@@ -22,6 +22,11 @@ class SharedObjectClient extends EventEmitter{
         this.updateTransport.subscribe("_SO_" + this.endpoint.name);
     }
 
+    unsubscribe(){
+        console.log('herererere')
+        this.updateTransport.unsubscribe("_SO_" + this.endpoint.name);
+    }
+
     _processMessage(data){
         if (data.endpoint == "_SO_" + this.endpoint.name){
             var idx = data.message.v - (this._v + 1);

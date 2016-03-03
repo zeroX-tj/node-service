@@ -16,6 +16,10 @@ class PullClient extends EventEmitter{
         this.transport.connect(this.hostname);
     };
 
+    unsubscribe(){
+        this.transport.disconnect(this.hostname);
+    };
+    
     _processMessage(data){
         this.emit("message", data);
     }
