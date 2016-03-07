@@ -67,10 +67,12 @@ class Client {
     _sourceConnected(){
         // Loop endpoints
         for(let endpoint of this.descriptor.endpoints) {
-            if (endpoint.type == 'SharedObject') {
+            if (endpoint.type == 'Source' || endpoint.type == 'SharedObject') {
                 console.log(endpoint.name, 'connected');
                 this[endpoint.name].emit('connected')
-                if(this[endpoint.name].ready == false) this[endpoint.name]._init();
+                if (endpoint.type == 'SharedObject') {
+                    if(this[endpoint.name].ready == false) this[endpoint.name]._init();
+                }
             }
         }
     }
@@ -78,10 +80,12 @@ class Client {
     _sourceClosed(){
         // Loop endpoints
         for(let endpoint of this.descriptor.endpoints) {
-            if (endpoint.type == 'SharedObject') {
+            if (endpoint.type == 'Source' || endpoint.type == 'SharedObject') {
                 console.log(endpoint.name, 'disconnected');
                 this[endpoint.name].emit('disconnected')
-                this[endpoint.name]._flushData();
+                if (endpoint.type == 'SharedObject') {
+                    this[endpoint.name]._flushData();
+                }
             }
         }
     }
