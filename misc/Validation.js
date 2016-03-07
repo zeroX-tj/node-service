@@ -29,6 +29,11 @@ module.exports.SourceValidation = function _doValidation(endpoint, obj){
         console.error("There's no schema for Source " + endpoint.name + ". Fix this!");
     }
 
+    // Check if we need to run validation
+    if(schema.skip){
+        return
+    }
+    
     var validation = inspector.validate(schema, obj);
 
     if (!validation.valid){
