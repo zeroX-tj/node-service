@@ -14,7 +14,8 @@ class SharedObjectClient extends EventEmitter{
         this.endpoint = endpoint;
         this.initTransport = transports.rpc;
         this.updateTransport = transports.source;
-        this.ready = false;
+
+        this._flushData();
     }
 
     subscribe(){
@@ -22,7 +23,6 @@ class SharedObjectClient extends EventEmitter{
     }
 
     unsubscribe(){
-        console.log('herererere')
         this.updateTransport.unsubscribe("_SO_" + this.endpoint.name);
     }
 
