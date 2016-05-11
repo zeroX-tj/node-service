@@ -26,7 +26,7 @@ class SharedObjectClient extends EventEmitter{
         if (data.endpoint == "_SO_" + this.endpoint.name){
             var idx = data.message.v - (this._v + 1);
             if (idx < 0){
-                console.error("Bad version! Reinit!");
+                console.error("("+this.endpoint.name + ") Bad version! Reinit!");
                 return this._init();
             }
             this.procBuffer[idx] = data.message.diffs;
@@ -53,7 +53,7 @@ class SharedObjectClient extends EventEmitter{
             this.timeSum += new Date() - this.timeBuffer.shift();
             this.timeCount++;
             if (this.timeCount == 10){
-                console.log("Average time: " + (this.timeSum/10) + " ms");
+                console.log("("+this.endpoint.name + ") Average time: " + (this.timeSum/10) + " ms");
                 this.timeSum = 0;
                 this.timeCount = 0;
             }
@@ -64,7 +64,7 @@ class SharedObjectClient extends EventEmitter{
         if (totalDiffs.length > 0) {
             this.emit('update', totalDiffs);
         }else if (this.ready && this.outstandingDiffs > 10){
-            console.error("Too many outstanding diffs, missed a version. Reinit.");
+            console.error("("+this.endpoint.name + ") Too many outstanding diffs, missed a version. Reinit.");
             this._init();
         }
     }
@@ -103,7 +103,7 @@ class SharedObjectClient extends EventEmitter{
         }, (answer) => {
             this.data = answer.res.data;
             this._v = answer.res.v;
-            console.log("Init installed version",this._v);
+            console.log("("+this.endpoint.name + ") Init installed version ",this._v);
             this.procBuffer.splice(0,this._v);
             this.timeBuffer.splice(0,this._v);
             this.outstandingDiffs = 0;
