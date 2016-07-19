@@ -10,7 +10,12 @@ class RPCClient {
             throw "Trying to initialise an RPC service without RPC config!";
     }
 
-    call(input, callback){
+    call(input, timeout, callback){
+        if(!callback){ // Make compatible with old code
+            callback = timeout;
+            timeout = 10e3;
+        }
+
         doValidation(this.endpoint, 'input', input);
         var answer_received = false;
         var answer_timeout = setTimeout(() => {
@@ -18,7 +23,7 @@ class RPCClient {
                 callback('timeout');
                 callback = null;
                 answer_received = null;
-        },10e3);
+        }, timeout);
         this.transport.send({
             endpoint: this.endpoint.name,
             input: JSON.stringify(input)
