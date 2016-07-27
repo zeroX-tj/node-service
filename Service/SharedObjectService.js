@@ -71,7 +71,7 @@ function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
 
     var reportDiffs = []; // Separate because of clone changes
 
-    if (diffs) {
+    if (diffs && diffs.length) {
         diffs.reverse().forEach(function (diff) {
             var diff = clone(diff);
             differ.applyChange(lhsWithHint, rhsWithHint, diff);
