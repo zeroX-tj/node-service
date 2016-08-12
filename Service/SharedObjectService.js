@@ -71,16 +71,16 @@ function diffAndReverseAndApplyWithHint(lhs, rhs, hint){
 
     var reportDiffs = []; // Separate because of clone changes
 
-    if (diffs && diffs.length) {
-        diffs.reverse().forEach(function (diff) {
-            var diff = clone(diff);
-            differ.applyChange(lhsWithHint, rhsWithHint, diff);
+    if (diffs) {
+        for(var i = diffs.length-1; i >= 0; i--){
+            var diff = clone(diffs[i]);
             if(diff.path)
                 diff.path = hintUsed.concat(diff.path);
             else
                 diff.path = hintUsed;
+            differ.applyChange(lhs,rhs, diff);
             reportDiffs.push(diff);
-        });
+        }
     }
 
     return reportDiffs;
