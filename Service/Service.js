@@ -7,6 +7,7 @@ var RPCService = require("./RPCService");
 var SourceService = require("./SourceService");
 var SharedObjectService = require("./SharedObjectService");
 var PushService = require("./PushService");
+var SinkService = require("./SinkService");
 
 class Service {
     constructor(descriptor, handlers, initials){
@@ -47,15 +48,18 @@ class Service {
     }
 
     _setupSink(hostname){
-        var sock = new zmq.socket('sub');
+        var sock = new zmq.socket('pull');
         this.transports.sink = sock;
+
         sock.bindSync(hostname);
-        sock.subscribe("");
         sock.on('message', this._sinkCallback.bind(this));
     }
 
     _sinkCallback(message){
-        // TODO: pass message to eventemitter
+        if (!this.SinkEndpoint){
+            throw new Error("Got a pull message, but ot Pull enpoint is connected!");
+        }
+        this.SinkEndpoint._processMessage(JSON.parse(message));
     }
 
     _setupRpc(hostname){
@@ -96,6 +100,10 @@ class Service {
                     break;
                 case 'PushPull':
                     this[endpoint.name] = new PushService(endpoint, this.transports);
+                    break;
+                case 'Sink':
+                    this[endpoint.name] = new SinkService(endpoint, this.transports);
+                    this.SinkEndpoint = this[endpoint.name];
                     break;
                 default:
                     throw "Unknown endpoint type";

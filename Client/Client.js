@@ -8,6 +8,7 @@ var RPCClient = require("./RPCClient");
 var SourceClient = require("./SourceClient");
 var SharedObjectClient = require("./SharedObjectClient");
 var PullClient = require("./PullClient");
+var SinkClient = require("./SinkClient");
 
 class Client {
     constructor(descriptor, workers){
@@ -54,7 +55,7 @@ class Client {
     }
 
     _setupSink(hostname){
-        var sock = new zmq.socket('pub');
+        var sock = new zmq.socket('push');
         this.transports.sink = sock;
         sock.connect(hostname);
     }
@@ -130,6 +131,10 @@ class Client {
                     }
                     this[endpoint.name] = new PullClient(endpoint, this.transports, this.descriptor.transports.pushpull.client);
                     this.PullEndpoint = this[endpoint.name];
+                    break;
+                case 'Sink':
+                    this[endpoint.name] = new SinkClient(endpoint, this.transports, this.descriptor.transports.sink.client);
+                    this.SinkEndpoint = this[endpoint.name];
                     break;
                 default:
                     throw "Unknown endpoint type.";
