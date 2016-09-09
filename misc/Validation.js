@@ -68,10 +68,13 @@ module.exports.SharedObjectValidation = function _doValidation(endpoint, obj, hi
 
     var schema = subs.schema;
     obj = subs.obj;
-
+    // Check if we need to run validation
+    if(schema.skip){
+        return
+    }
     var validation = inspector.validate(schema, obj);
 
-    if (!validation.valid){
+    if (!validation.valid) {
         throw new Error("Validation failed! " + validation.format());
     }
 };
