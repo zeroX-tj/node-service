@@ -37,7 +37,7 @@ class SharedObjectService{
         doValidate(this.endpoint, this.data, hint);
 
         var diffs = diffAndReverseAndApplyWithHint(this._lastTransmit, this.data, hint);
-        if (diffs) {
+        if (diffs && diffs.length) {
             this._v++;
             var OTW = {
                 endpoint: "_SO_" + this.endpoint.name,
