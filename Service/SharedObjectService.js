@@ -16,6 +16,7 @@ class SharedObjectService{
         this.endpoint = endpoint;
         transports.rpc.on('message', this._processRPC.bind(this));
         this.diffTransport = transports.source;
+        this.stats = {updates: 0};
     }
 
     _processRPC(message, reply){
@@ -38,6 +39,7 @@ class SharedObjectService{
 
         var diffs = diffAndReverseAndApplyWithHint(this._lastTransmit, this.data, hint);
         if (diffs && diffs.length) {
+            this.stats.updates++;
             this._v++;
             var OTW = {
                 endpoint: "_SO_" + this.endpoint.name,
@@ -45,6 +47,12 @@ class SharedObjectService{
             };
             this.diffTransport.send([OTW.endpoint,JSON.stringify(OTW)]);
         }
+    }
+
+    stats(){
+        var current_stats = JSON.parse(JSON.stringify(this.stats));
+        this.stats.updates = 0;
+        return current_stats;
     }
 }
 

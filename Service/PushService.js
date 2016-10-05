@@ -8,6 +8,7 @@ class SourceService{
         this.transport = transports.pushpull;
         if (!this.transport)
             throw "Trying to construct PushPull endpoint without pushpull transport";
+        this.stats = {updates: 0};
     }
 
     push(message){
@@ -15,6 +16,13 @@ class SourceService{
 
         var OTW = message;
         this.transport.send(JSON.stringify(OTW));
+        this.stats.updates++;
+    }
+
+    stats(){
+        var current_stats = JSON.parse(JSON.stringify(this.stats));
+        this.stats.updates = 0;
+        return current_stats;
     }
 }
 

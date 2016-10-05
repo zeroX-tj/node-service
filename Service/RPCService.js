@@ -6,6 +6,7 @@ class RPCService{
     constructor(endpoint, handler){
         this.endpoint = endpoint;
         this.handler = handler;
+        this.stats = {updates: 0};
     }
 
     call(input, callback){
@@ -15,6 +16,7 @@ class RPCService{
         var req = JSON.parse(input.input);
 
         doValidation(this.endpoint, 'input', req);
+        this.stats.updates++;
 
         this.handler(req, (err, res) => {
 
@@ -25,6 +27,12 @@ class RPCService{
             var reply = JSON.stringify({err,res});
             callback(reply);
         });
+    }
+
+    stats(){
+        var current_stats = JSON.parse(JSON.stringify(this.stats));
+        this.stats.updates = 0;
+        return current_stats;
     }
 }
 
