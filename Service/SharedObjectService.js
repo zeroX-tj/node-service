@@ -49,7 +49,7 @@ class SharedObjectService{
         }
     }
 
-    stats(){
+    getStats(){
         var current_stats = JSON.parse(JSON.stringify(this.stats));
         this.stats.updates = 0;
         return current_stats;
