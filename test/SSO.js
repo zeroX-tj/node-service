@@ -9,13 +9,16 @@ var SharedObjectSchema = {
     properties: {
         message: {
             type: 'string',
-            pattern: /Last thing you said was .*/
         },
         rand: {
             type: 'number'
         },
         now: {
             type: 'date'
+        },
+        '*':{
+            type: 'object',
+            properties: {}
         }
     }
 };
@@ -41,12 +44,12 @@ var descriptor = {
             transports: [
                 {
                     source: {
-                        client: "tcp://127.0.0.1:14001",
-                        server: "tcp://127.0.0.1:14001"
+                        client: "tcp://127.0.0.1:14011",
+                        server: "tcp://127.0.0.1:14011"
                     },
                     rpc: {
-                        client: "tcp://127.0.0.1:14003",
-                        server: "tcp://127.0.0.1:14003"
+                        client: "tcp://127.0.0.1:14031",
+                        server: "tcp://127.0.0.1:14031"
                     }
                 },
                 {
@@ -59,30 +62,30 @@ var descriptor = {
                         server: "tcp://127.0.0.1:14030"
                     }
                 },
-                {
-                    source: {
-                        client: "tcp://127.0.0.1:14011",
-                        server: "tcp://127.0.0.1:14011"
-                    },
-                    rpc: {
-                        client: "tcp://127.0.0.1:14031",
-                        server: "tcp://127.0.0.1:14031"
-                    }
-                },
-                {
-                    source: {
-                        client: "tcp://127.0.0.1:14012",
-                        server: "tcp://127.0.0.1:14012"
-                    },
-                    rpc: {
-                        client: "tcp://127.0.0.1:14032",
-                        server: "tcp://127.0.0.1:14032"
-                    }
-                }
+                // {
+                //     source: {
+                //         client: "tcp://127.0.0.1:14011",
+                //         server: "tcp://127.0.0.1:14011"
+                //     },
+                //     rpc: {
+                //         client: "tcp://127.0.0.1:14031",
+                //         server: "tcp://127.0.0.1:14031"
+                //     }
+                // },
+                // {
+                //     source: {
+                //         client: "tcp://127.0.0.1:14012",
+                //         server: "tcp://127.0.0.1:14012"
+                //     },
+                //     rpc: {
+                //         client: "tcp://127.0.0.1:14032",
+                //         server: "tcp://127.0.0.1:14032"
+                //     }
+                // }
             ],
             subEndpoints: [ {
                 name: "SO",
-                type: "ShardedSharedObject",
+                type: "SharedObject",
                 objectSchema: SharedObjectSchema,
             }]
         }
@@ -92,6 +95,9 @@ var descriptor = {
 
 var initials = {
     SO: {
+        message: "Last thing you said was test",
+        rand: Math.random(),
+        now: new Date()
     }
 };
 
