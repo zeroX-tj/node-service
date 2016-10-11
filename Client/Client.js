@@ -136,6 +136,10 @@ class Client {
                     this[endpoint.name] = new SinkClient(endpoint, this.transports, this.descriptor.transports.sink.client);
                     this.SinkEndpoint = this[endpoint.name];
                     break;
+                case 'ShardedSharedObject':
+                    this[endpoint.name] = new SharedObjectClient(endpoint, this.transports);
+                    this['_SO_'+endpoint.name] = this[endpoint.name];
+                    break;
                 default:
                     throw "Unknown endpoint type.";
             }

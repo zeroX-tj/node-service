@@ -8,6 +8,8 @@ var SourceService = require("./SourceService");
 var SharedObjectService = require("./SharedObjectService");
 var PushService = require("./PushService");
 var SinkService = require("./SinkService");
+var ShardedSharedObjectService = require("./ShardedSharedObjectService");
+var ShardedSharedObjectBridge = require("./ShardedSharedObjectBridge");
 
 class Service {
     constructor(descriptor, handlers, initials){
@@ -104,6 +106,12 @@ class Service {
                 case 'Sink':
                     this[endpoint.name] = new SinkService(endpoint, this.transports);
                     this.SinkEndpoint = this[endpoint.name];
+                    break;
+                case 'ShardedSharedObject':
+                    var ssos = new ShardedSharedObjectService(endpoint, this.transports, this.initials[endpoint.name]);
+                    endpoint.sub_endpoints.forEach((sub_endpoint)=>{
+                        this[sub_endpoint.name] = new ShardedSharedObjectBridge(sub_endpoint, ssos)
+                    })
                     break;
                 default:
                     throw "Unknown endpoint type";
