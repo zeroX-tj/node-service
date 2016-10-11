@@ -32,8 +32,7 @@ class ShardedSharedObjectService {
     fork(){
         for (var i = 0; i < this.workerCount; i++) {
             console.log('spawning', i, this.workerPath)
-            this.shards[i] = cp.fork(WORKER_WRAPPER, [i, JSON.stringify(this.initial_data), JSON.stringify(this.endpoint.transports[i]), this.workerPath]);
-
+            this.shards[i] = cp.fork(WORKER_WRAPPER, [i, JSON.stringify(this.initial_data), JSON.stringify({endpoints: this.endpoint.sub_endpoints, transports: this.endpoint.transports[i]}), this.workerPath]);
         }
     }
 }
