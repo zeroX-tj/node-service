@@ -1,17 +1,32 @@
 "use strict";
 var clone = require("../misc/clone");
 var EventEmitter = require("events").EventEmitter;
+var differ = require("deep-diff");
 
-class ShardedSharedObjectBridge extends EventEmitter{
-    constructor(endpoint, transports) {
-     super();
+class ShardedSharedObjectBridge extends EventEmitter {
+    constructor(endpoints) {
+        super();
 
-      this.endpoint = endpoint;
+        this.endpoints = endpoints;
+        this.clients = [];
+        this.data;
+        this.on('init', () => {
+            var data = [];
+            Object.keys(self.endpoints).forEach((e)=>{
+                data = data.concat(this.service[e].data)
+            })
 
+            this.data = d;
+        });
+        this.on('update', (d) => {
+            for (let diff of d){
+                differ.applyChange(this.data, true, diff);
+            }
+        });
     }
 
-    subscribe(){
-        this.updateTransport.subscribe("_SO_" + this.endpoint.name);
+    subscribe() {
+        this.emit('subscribe', "_SO_" + this.endpoint.name);
     }
 }
 
