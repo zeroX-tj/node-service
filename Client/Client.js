@@ -125,7 +125,7 @@ class Client {
                     this[endpoint.name] = new PullClient(endpoint, this.transports, this.descriptor.transports.pushpull.client);
                     this.PullEndpoint = this[endpoint.name];
                     break;
-                case 'ShardedSharedObject':
+                case 'ShardedSharedObjects':
                     this[endpoint.name] = new SharedObjectClient(endpoint, this.transports);
                     this['_SO_'+endpoint.name] = this[endpoint.name];
                     break;

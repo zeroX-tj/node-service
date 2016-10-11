@@ -35,7 +35,7 @@ var descriptor = {
     endpoints: [
         {
             name: "SO",
-            type: "ShardedSharedObject",
+            type: "ShardedSharedObjects",
             objectSchema: SharedObjectSchema,
             workerPath:  require.resolve('./SSO_Worker'),
             transports: [
@@ -80,7 +80,7 @@ var descriptor = {
                     }
                 }
             ],
-            sub_endpoints: [ {
+            subEndpoints: [ {
                 name: "SO",
                 type: "ShardedSharedObject",
                 objectSchema: SharedObjectSchema,
