@@ -1,4 +1,6 @@
 "use strict";
+require('json.date-extensions');
+JSON.useDateParser();
 var id = process.argv[2];
 var init_data = JSON.parse(process.argv[3]);
 var descriptor = JSON.parse(process.argv[4]);
@@ -9,7 +11,10 @@ worker.init(descriptor, init_data);
 process.on('message', (payload)=>{
     switch (payload.cmd){
         case 'put':
-            worker.put(payload.data.key, payload.data.value);
+            var path = payload.data.key;
+            var endpointName = path.shift();
+            //console.log(data)
+            worker.put(endpointName, path, payload.data.value);
             break;
         case 'remove':
             worker.remove(payload.data);
