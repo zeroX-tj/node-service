@@ -99,9 +99,9 @@ class Service {
                     this[endpoint.name] = new PushService(endpoint, this.transports);
                     break;
                 case 'ShardedSharedObjects':
-                    var ssos = new ShardedSharedObjectService(endpoint, this.transports, this.initials[endpoint.name]);
+                    var ssos = new ShardedSharedObjectService(endpoint, this.transports, this.initials);
                     endpoint.subEndpoints.forEach((sub_endpoint)=>{
-                        this[sub_endpoint.name] = new ShardedSharedObjectBridge(sub_endpoint, ssos)
+                        this[sub_endpoint.name] = new ShardedSharedObjectBridge(sub_endpoint, ssos);
                     })
                     break;
                 default:
