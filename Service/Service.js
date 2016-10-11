@@ -7,7 +7,8 @@ var RPCService = require("./RPCService");
 var SourceService = require("./SourceService");
 var SharedObjectService = require("./SharedObjectService");
 var PushService = require("./PushService");
-
+var ShardedSharedObjectService = require("./ShardedSharedObjectService");
+var ShardedSharedObjectBridge = require("./ShardedSharedObjectBridge");
 class Service {
     constructor(descriptor, handlers, initials){
         this.descriptor = descriptor;
@@ -96,6 +97,12 @@ class Service {
                     break;
                 case 'PushPull':
                     this[endpoint.name] = new PushService(endpoint, this.transports);
+                    break;
+                case 'ShardedSharedObject':
+                    var ssos = new ShardedSharedObjectService(endpoint, this.transports, this.initials[endpoint.name]);
+                    endpoint.sub_endpoints.forEach((sub_endpoint)=>{
+                        this[sub_endpoint.name] = new ShardedSharedObjectBridge(sub_endpoint, ssos)
+                    })
                     break;
                 default:
                     throw "Unknown endpoint type";
