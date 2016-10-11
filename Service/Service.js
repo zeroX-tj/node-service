@@ -107,9 +107,9 @@ class Service {
                     this[endpoint.name] = new SinkService(endpoint, this.transports);
                     this.SinkEndpoint = this[endpoint.name];
                     break;
-                case 'ShardedSharedObject':
+                case 'ShardedSharedObjects':
                     var ssos = new ShardedSharedObjectService(endpoint, this.transports, this.initials[endpoint.name]);
-                    endpoint.sub_endpoints.forEach((sub_endpoint)=>{
+                    endpoint.subEndpoints.forEach((sub_endpoint)=>{
                         this[sub_endpoint.name] = new ShardedSharedObjectBridge(sub_endpoint, ssos)
                     })
                     break;
