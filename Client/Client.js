@@ -135,16 +135,18 @@ class Client {
                     break;
                 case 'ShardedSharedObjects':
                     var endpoints = {};
-                    endpoint.subEndpoints.forEach((sub_endpoint)=>{
-                        endpoints[sub_endpoint.name] = this[sub_endpoint.name] = new ShardedSharedObjectBridge(sub_endpoint);
-                        this['_SO_'+sub_endpoint.name] = this[sub_endpoint.name];
-                    });
+                    var bridge = new ShardedSharedObjectBridge(endpoint.subEndpoints);
                     endpoint.transports.forEach((transport)=>{
                         var descriptor = JSON.parse(JSON.stringify(this.descriptor));
                         descriptor.endpoints = endpoint.subEndpoints;
                         descriptor.transports = transport;
-                        new ShardedSharedObjectClient(descriptor, endpoints);
+                        new ShardedSharedObjectClient(descriptor, bridge, Client);
                     });
+                    endpoint.subEndpoints.forEach((sub_endpoint)=>{
+                        endpoints[sub_endpoint.name] = bridge[sub_endpoint.name]
+                        this['_SO_'+sub_endpoint.name] = this[sub_endpoint.name];
+                    });
+
                     break;
                 default:
                     throw "Unknown endpoint type.";
