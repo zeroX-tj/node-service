@@ -9,14 +9,11 @@ var SourceClient = require("./SourceClient");
 var SharedObjectClient = require("./SharedObjectClient");
 var PullClient = require("./PullClient");
 var SinkClient = require("./SinkClient");
+var ShardedSharedObjectClient = require("./ShardedSharedObjectClient");
+var ShardedSharedObjectBridge = require("./ShardedSharedObjectBridge");
 
 class Client {
-    constructor(descriptor, workers){
-        if (!workers){
-            workers = {}
-        }
-
-        this.workers = workers;
+    constructor(descriptor){
         this.descriptor = descriptor;
         this.transports = {};
 
@@ -137,8 +134,17 @@ class Client {
                     this.SinkEndpoint = this[endpoint.name];
                     break;
                 case 'ShardedSharedObjects':
-                    this[endpoint.name] = new SharedObjectClient(endpoint, this.transports);
-                    this['_SO_'+endpoint.name] = this[endpoint.name];
+                    var endpoints = {};
+                    endpoint.subEndpoints.forEach((sub_endpoint)=>{
+                        endpoints[sub_endpoint.name] = this[sub_endpoint.name] = new ShardedSharedObjectBridge(sub_endpoint);
+                        this['_SO_'+sub_endpoint.name] = this[sub_endpoint.name];
+                    });
+                    endpoint.transports.forEach((transport)=>{
+                        var descriptor = JSON.parse(JSON.stringify(this.descriptor));
+                        descriptor.endpoints = endpoint.subEndpoints;
+                        descriptor.transports = transport;
+                        new ShardedSharedObjectClient(descriptor, endpoints);
+                    });
                     break;
                 default:
                     throw "Unknown endpoint type.";
