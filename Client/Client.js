@@ -134,7 +134,6 @@ class Client {
                     this.SinkEndpoint = this[endpoint.name];
                     break;
                 case 'ShardedSharedObjects':
-                    var endpoints = {};
                     var bridge = new ShardedSharedObjectBridge(endpoint.subEndpoints);
                     endpoint.transports.forEach((transport)=>{
                         var descriptor = JSON.parse(JSON.stringify(this.descriptor));
@@ -143,7 +142,7 @@ class Client {
                         new ShardedSharedObjectClient(descriptor, bridge, Client);
                     });
                     endpoint.subEndpoints.forEach((sub_endpoint)=>{
-                        endpoints[sub_endpoint.name] = bridge[sub_endpoint.name]
+                        this[sub_endpoint.name] = bridge.endpoints[sub_endpoint.name];
                         this['_SO_'+sub_endpoint.name] = this[sub_endpoint.name];
                     });
 

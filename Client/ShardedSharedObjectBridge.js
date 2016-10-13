@@ -3,23 +3,23 @@ var clone = require("../misc/clone");
 var EventEmitter = require("events").EventEmitter;
 var differ = require("deep-diff");
 
-class ShardedSharedObjectBridge extends EventEmitter {
-    constructor(endpoints) {
+class EndpointBridge extends EventEmitter {
+    constructor(endpoint, bridge) {
         super();
+        this.endpoint = endpoint;
+        this.data = {};
 
-        this.endpoints = endpoints;
-        this.clients = [];
-        this.data;
-        this.on('init', () => {
-            var data = [];
-            Object.keys(self.endpoints).forEach((e)=>{
-                data = data.concat(this.service[e].data)
+        this.on('_init', () => {
+            this.data = {};
+            bridge.clients.forEach((client)=>{
+                for (var attrname in client[endpoint.name].data) { this.data[attrname] = client[endpoint.name].data[attrname]; }
             })
-
-            this.data = d;
+            console.log('got init')
+            this.emit('init')
         });
         this.on('update', (d) => {
-            for (let diff of d){
+            console.log('got update')
+            for (let diff of d) {
                 differ.applyChange(this.data, true, diff);
             }
         });
@@ -28,6 +28,20 @@ class ShardedSharedObjectBridge extends EventEmitter {
     subscribe() {
         this.emit('subscribe', "_SO_" + this.endpoint.name);
     }
+}
+
+class ShardedSharedObjectBridge {
+    constructor(endpoints) {
+        this.endpoints = {};
+
+        endpoints.forEach((endpoint) => {
+            this.endpoints[endpoint.name] = new EndpointBridge(endpoint, this);
+        })
+
+        this.clients = [];
+
+    }
+
 }
 
 module.exports = ShardedSharedObjectBridge;

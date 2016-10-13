@@ -6,22 +6,23 @@ var clone = require("../misc/clone");
 
 class ShardedSharedObjectClient{
     constructor(descriptor, bridge, Client){
-        this.endpoints = descriptor.subEndpoints;
+        this.endpoints = descriptor.endpoints;
         this.transports = descriptor.transports;
         this.service = new Client(descriptor);
         bridge.clients.push(this.service);
         var self = this;
 
-        Object.keys(this.endpoints).forEach((endpointName)=>{
-            this.endpoints[endpointName].on('subscribe', (channel)=>{
-                self.service[endpointName].subscribe(channel);
+        this.endpoints.forEach((endpoint)=>{
+            bridge.endpoints[endpoint.name].on('subscribe', (channel)=>{
+                self.service[endpoint.name].subscribe(channel);
             });
-            this.service[endpointName].on('init', ()=>{
-                bridge.endpoints[endpointName].emit('init')
+            this.service[endpoint.name].on('init', ()=>{
+                console.log('init')
+                bridge.endpoints[endpoint.name].emit('_init')
             });
-            this.service[endpointName].on('update', (d)=>{
-                console.log(d)
-                self.endpoints[endpointName].emit('update', d)
+            this.service[endpoint.name].on('update', (d)=>{
+                console.log('update',JSON.stringify(d))
+                bridge.endpoints[endpoint.name].emit('update', d)
             });
         })
     }
