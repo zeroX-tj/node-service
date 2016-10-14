@@ -86,7 +86,7 @@ class Service {
                 case 'RPC':
                     var handler = this.handlers[endpoint.name];
                     if (!handler)
-                        throw "Missing handler: " + endpoint.name;
+                        throw new Error("Missing handler: " + endpoint.name);
                     this.RPCServices[endpoint.name] = new RPCService(endpoint, handler);
                     break;
                 case 'Source':
@@ -100,8 +100,18 @@ class Service {
                     break;
                 case 'ShardedSharedObjects':
                     var ssos = new ShardedSharedObjectService(endpoint, this.transports, this.initials);
-                    endpoint.subEndpoints.forEach((sub_endpoint)=>{
-                        this[sub_endpoint.name] = new ShardedSharedObjectBridge(sub_endpoint, ssos);
+                    endpoint.subEndpoints.forEach((subEndpoint)=>{
+                        switch (subEndpoint.type){
+                            case 'SharedObject':
+                                this[subEndpoint.name] = new ShardedSharedObjectBridge(subEndpoint, ssos);
+                                break;
+                            case 'RPC':
+                                var handler = (req, rep)=>{
+                                    ssos.rpc(endpoint.name, req, rep)
+                                }
+                                this.RPCServices[endpoint.name] = new RPCService(endpoint, handler);
+                                break;
+                        }
                     })
                     break;
                 default:

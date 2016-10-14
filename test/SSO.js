@@ -16,13 +16,30 @@ var SharedObjectSchema = {
         now: {
             type: 'date'
         },
-        '*':{
+        '*': {
             type: 'object',
             properties: {}
         }
     }
 };
 
+var TakeSnapshot = {
+    RequestSchema: {
+        type: 'object',
+        properties: {
+            id: {
+                type: 'string'
+            },
+            provider: {
+                type: 'string'
+            },
+            tag: {
+                type: 'string'
+            }
+        }
+    },
+    ReplySchema: {}
+};
 
 var descriptor = {
     transports: {
@@ -39,8 +56,7 @@ var descriptor = {
         {
             name: "SO",
             type: "ShardedSharedObjects",
-            objectSchema: SharedObjectSchema,
-            workerPath:  require.resolve('./SSO_Worker'),
+            workerPath: require.resolve('./SSO_Worker'),
             transports: [
                 {
                     source: {
@@ -62,31 +78,38 @@ var descriptor = {
                         server: "tcp://127.0.0.1:14030"
                     }
                 },
-                // {
-                //     source: {
-                //         client: "tcp://127.0.0.1:14011",
-                //         server: "tcp://127.0.0.1:14011"
-                //     },
-                //     rpc: {
-                //         client: "tcp://127.0.0.1:14031",
-                //         server: "tcp://127.0.0.1:14031"
-                //     }
-                // },
-                // {
-                //     source: {
-                //         client: "tcp://127.0.0.1:14012",
-                //         server: "tcp://127.0.0.1:14012"
-                //     },
-                //     rpc: {
-                //         client: "tcp://127.0.0.1:14032",
-                //         server: "tcp://127.0.0.1:14032"
-                //     }
-                // }
+                {
+                    source: {
+                        client: "tcp://127.0.0.1:14012",
+                        server: "tcp://127.0.0.1:14012"
+                    },
+                    rpc: {
+                        client: "tcp://127.0.0.1:14032",
+                        server: "tcp://127.0.0.1:14032"
+                    }
+                },
+                {
+                    source: {
+                        client: "tcp://127.0.0.1:14013",
+                        server: "tcp://127.0.0.1:14013"
+                    },
+                    rpc: {
+                        client: "tcp://127.0.0.1:14033",
+                        server: "tcp://127.0.0.1:14033"
+                    }
+                }
             ],
-            subEndpoints: [ {
+            subEndpoints: [{
+                name: "TakeSnapshot",
+                type: "RPC",
+                requestSchema: TakeSnapshot.RequestSchema,
+                replySchema: TakeSnapshot.ReplySchema,
+                shardKey: ['id']
+            }, {
                 name: "SO",
                 type: "SharedObject",
                 objectSchema: SharedObjectSchema,
+                shardKeyIndex: 0
             }]
         }
     ],
@@ -118,7 +141,11 @@ c.SO.subscribe()
 
 var s = new service.Service(descriptor, {}, initials);
 setInterval(function () {
-    s.SO.put(['1234','rand'], Math.random());
-    s.SO.put(['666','now'], new Date());
+    s.SO.put(['1234', 'rand'], Math.random());
+    s.SO.put(['666', 'now'], new Date());
+    s.SO.put(['sdfsdfs', 'now'], new Date());
+    s.SO.put(['665646546546', 'now'], new Date());
+    s.SO.put(['66eeeee6', 'now'], new Date());
+
     //s.SO.notify();
 }, 1000);

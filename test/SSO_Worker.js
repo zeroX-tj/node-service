@@ -4,7 +4,9 @@ var s;
 var data = {}
 module.exports = {
     init: (descriptor,initial_data)=>{
-        s = new service.Service(descriptor, {}, initial_data);
+        s = new service.Service(descriptor, {TakeSnapshot: ()=>{
+            console.log('here')
+        }}, initial_data);
         data = initial_data;
     },
     put: (endpointName, path, value)=>{
@@ -28,5 +30,8 @@ module.exports = {
         });
         delete to[field];
         s[endpointName].notify(path);
+    },
+    rpc: (endpointName, req, rep)=>{
+        console.log('worker handler', JSON.stringify(req))
     }
 }

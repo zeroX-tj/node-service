@@ -5,6 +5,10 @@ var id = process.argv[2];
 var init_data = JSON.parse(process.argv[3]);
 var descriptor = JSON.parse(process.argv[4]);
 var worker = require(process.argv[5]);
+var _ = require('underscore');
+
+if(!(_.isFunction(worker.init) || _.isFunction(worker.put) || _.isFunction(worker.remove)))
+    throw new Error('worker should implement init, put, remove');
 
 worker.init(descriptor, init_data);
 
@@ -18,6 +22,11 @@ process.on('message', (payload)=>{
             break;
         case 'remove':
             worker.remove(payload.data);
+            break;
+        case 'rpc':
+            worker.rpc(payload.data.endpointName, payload.data.req, (err, res)=>{
+                consolelog(process.pid, 'got RPC answer')
+            })
             break;
         default:
             throw new Error('unknown cmd');

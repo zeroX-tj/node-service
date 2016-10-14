@@ -6,6 +6,7 @@ var differ = require("deep-diff");
 
 class SharedObjectService{
     constructor(endpoint, transports, initial){
+        console.log('create', endpoint.name)
         if (!transports.rpc || !transports.source)
             throw new Error("Shared objects need both Source and RPC transports to be configured");
 

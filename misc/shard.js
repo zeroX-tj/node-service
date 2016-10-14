@@ -34,7 +34,7 @@ class GenericSharder {
     // Cleanup when deleted
     delete(id) {
         shards[map[id].shard_id].total_usage -= 1;
-        delete shards[id].ids[map[id].event_id][id];
+        delete shards[id].ids[map[id]][id];
         if(!Object.keys(shards[id].ids).length){
             delete shards[id].ids;
         }
