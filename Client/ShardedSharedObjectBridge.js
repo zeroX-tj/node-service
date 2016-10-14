@@ -14,7 +14,6 @@ class EndpointBridge extends EventEmitter {
             bridge.clients.forEach((client)=>{
                 for (var attrname in client[endpoint.name].data) { this.data[attrname] = client[endpoint.name].data[attrname]; }
             })
-            console.log('got init')
             this.emit('init')
         });
         this.on('update', (d) => {

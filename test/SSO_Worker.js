@@ -1,13 +1,14 @@
 "use strict";
 var service = require("../index");
 var s;
-var data = {}
+var data = {};
 module.exports = {
     init: (descriptor,initial_data)=>{
-        s = new service.Service(descriptor, {TakeSnapshot: ()=>{
-            console.log('here')
+        s = new service.Service(descriptor, {TakeSnapshot: (req, rep)=>{
+            rep(null, {w00t:'t00t'})
         }}, initial_data);
         data = initial_data;
+        return s;
     },
     put: (endpointName, path, value)=>{
         var to = s[endpointName].data;
@@ -31,7 +32,4 @@ module.exports = {
         delete to[field];
         s[endpointName].notify(path);
     },
-    rpc: (endpointName, req, rep)=>{
-        console.log('worker handler', JSON.stringify(req))
-    }
-}
+};

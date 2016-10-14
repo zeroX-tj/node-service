@@ -148,4 +148,13 @@ setInterval(function () {
     s.SO.put(['66eeeee6', 'now'], new Date());
 
     //s.SO.notify();
-}, 1000);
+}, 10000);
+
+setTimeout(()=>{
+    c.TakeSnapshot.call({id:'1234', provider: 'mollybet', tag: 'START'}, (err, result)=>{
+        if(err)
+            console.error(err)
+        console.log('got result')
+        console.log(result)
+    })
+}, 5000)
