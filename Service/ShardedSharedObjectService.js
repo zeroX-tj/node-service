@@ -11,6 +11,8 @@ class ShardedSharedObjectService {
         this.initial_data = clone(initial);
         this.endpoint = endpoint;
         transports.rpc.on('message', this._processRPC.bind(this));
+        this.RpcCallQueue = {};
+        this.RpcCallQueueNr = 0;
         this.diffTransport = transports.source;
         this.workerCount = Object.keys(this.endpoint.transports).length;
         this.sharding = new shard(this.workerCount);
@@ -21,6 +23,7 @@ class ShardedSharedObjectService {
 
     _processRPC(message, reply) {
         if (message.endpoint == "_SO_" + this.endpoint.name) {
+            console.log('got request for init');
             if (message.input == "init") {
                 reply({err: null, res: {data: this.data, v: this._v}});
             } else {
@@ -87,6 +90,22 @@ class ShardedSharedObjectService {
         this.shards.forEach((shard) => {
             shard.shutdown();
         })
+    }
+
+    rpc(endpointName, req, rep){
+        if(!req.shardKey) {
+            return rep({error: 'Please provide shard key in request to do RPC on Sharded Service'});
+        }
+        var key = req;
+        req.shardKey.forEach((path)=>{
+            key = key[path]
+        });
+        var shard_id = this.transport.sharding.get(key);
+        var callQueueNr = this.RpcCallQueueNr++;
+        //console.log('delete', key.join('.'), 'on shard id', shard_id, 'for path', key[0])
+        //key.unshift(this.endpoint.name); // Add endpoint to path
+        this.RpcCallQueue[this.RpcCallQueueNr] = rep;
+        this.transport.shards[shard_id].send({cmd: 'rpc', data:{endpointName, req_id: callQueueNr, req}})
     }
 }
 
