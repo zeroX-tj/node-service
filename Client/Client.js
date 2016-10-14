@@ -131,10 +131,16 @@ class Client {
                         new ShardedSharedObjectClient(descriptor, bridge, Client);
                     });
                     endpoint.subEndpoints.forEach((sub_endpoint)=>{
-                        this[sub_endpoint.name] = bridge.endpoints[sub_endpoint.name];
-                        this['_SO_'+sub_endpoint.name] = this[sub_endpoint.name];
+                        switch (sub_endpoint.type){
+                            case 'SharedObject':
+                                this[sub_endpoint.name] = bridge.endpoints[sub_endpoint.name];
+                                this['_SO_'+sub_endpoint.name] = this[sub_endpoint.name];
+                                break;
+                            case 'RPC':
+                                this[sub_endpoint.name] = new RPCClient(sub_endpoint, this.transports);
+                                break;
+                        }
                     });
-
                     break;
                 default:
                     throw "Unknown endpoint type.";
