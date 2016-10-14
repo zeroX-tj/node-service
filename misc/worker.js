@@ -7,10 +7,10 @@ var descriptor = JSON.parse(process.argv[4]);
 var worker = require(process.argv[5]);
 var _ = require('underscore');
 
-if(!(_.isFunction(worker.init) || _.isFunction(worker.put) || _.isFunction(worker.remove)))
+if(!(_.isFunction(worker.init) && _.isFunction(worker.put) && _.isFunction(worker.remove)))
     throw new Error('worker should implement init, put, remove');
 
-worker.init(descriptor, init_data);
+var service = worker.init(descriptor, init_data);
 
 process.on('message', (payload)=>{
     switch (payload.cmd){
@@ -24,8 +24,9 @@ process.on('message', (payload)=>{
             worker.remove(payload.data);
             break;
         case 'rpc':
-            worker.rpc(payload.data.endpointName, payload.data.req, (err, res)=>{
-                consolelog(process.pid, 'got RPC answer')
+            service.RPCServices[payload.data.endpointName].handler(payload.data.req, (err, res)=>{
+                var replyPayload = {cmd:"rpc", id:payload.data.req_id, err, res};
+                process.send(replyPayload);
             })
             break;
         default:

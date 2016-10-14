@@ -44,7 +44,7 @@ class ShardedSharedObjectService {
         });
         // And the exit event shuts down the child.
         process.once("exit", function () {
-            self.killChildren();
+            self._killChildren();
         });
 
         // This is a somewhat ugly approach, but it has the advantage of working
@@ -55,7 +55,7 @@ class ShardedSharedObjectService {
             // Our assumption here is that any other code listening for an uncaught
             // exception is going to do the sensible thing and call process.exit().
             if (process.listeners("uncaughtException").length === 0) {
-                self.killChildren();
+                self._killChildren();
                 throw error;
             }
         });
@@ -82,10 +82,19 @@ class ShardedSharedObjectService {
             this.shards[i].on('error', (code) => {
                 console.log(`child process errored with code ${code}`);
             });
+            this.shards[i].on("message", this.processChildMessage.bind(this));
         }
     }
 
-    killChildren() {
+    processChildMessage(payload) {
+        switch(payload.cmd){
+            case 'rpc':
+                this._processRpcCallback(payload.id, payload.err, payload.res);
+                break;
+        }
+    }
+
+    _killChildren() {
         // Functions to kill children when things go wrong
         this.shards.forEach((shard) => {
             shard.shutdown();
@@ -93,19 +102,27 @@ class ShardedSharedObjectService {
     }
 
     rpc(endpointName, req, rep){
-        if(!req.shardKey) {
+        var shardKey = this.endpoint.subEndpoints.filter((e)=>{return (endpointName==e.name)})[0].shardKey;
+        if(!shardKey) {
             return rep({error: 'Please provide shard key in request to do RPC on Sharded Service'});
         }
+
         var key = req;
-        req.shardKey.forEach((path)=>{
+        shardKey.forEach((path)=>{
             key = key[path]
         });
-        var shard_id = this.transport.sharding.get(key);
+
+        var shard_id = this.sharding.get(key);
         var callQueueNr = this.RpcCallQueueNr++;
         //console.log('delete', key.join('.'), 'on shard id', shard_id, 'for path', key[0])
         //key.unshift(this.endpoint.name); // Add endpoint to path
-        this.RpcCallQueue[this.RpcCallQueueNr] = rep;
-        this.transport.shards[shard_id].send({cmd: 'rpc', data:{endpointName, req_id: callQueueNr, req}})
+        this.RpcCallQueue[callQueueNr] = rep;
+        this.shards[shard_id].send({cmd: 'rpc', data:{endpointName, req_id: callQueueNr, req}})
+    }
+
+    _processRpcCallback(reqId, err, result){
+        this.RpcCallQueue[reqId](err, result);
+        delete this.RpcCallQueue[reqId];
     }
 }
 

@@ -116,9 +116,9 @@ class Service {
                                 break;
                             case 'RPC':
                                 var handler = (req, rep)=>{
-                                    ssos.rpc(endpoint.name, req, rep)
+                                    ssos.rpc.apply(ssos,[subEndpoint.name, req, rep])
                                 }
-                                this.RPCServices[endpoint.name] = new RPCService(endpoint, handler);
+                                this.RPCServices[subEndpoint.name] = new RPCService(subEndpoint, handler);
                                 break;
                         }
                     })
