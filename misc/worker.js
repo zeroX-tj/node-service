@@ -5,7 +5,6 @@ var id = process.argv[2];
 var initial_data = JSON.parse(process.argv[3]);
 var descriptor = JSON.parse(process.argv[4]);
 var worker = require(process.argv[5]);
-var _ = require('underscore');
 var nodeservice = require("../index");
 var service = new nodeservice.Service(descriptor, worker.handlers, initial_data);
 worker.data = initial_data;
