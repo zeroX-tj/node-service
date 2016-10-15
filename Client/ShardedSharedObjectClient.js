@@ -14,6 +14,7 @@ class ShardedSharedObjectClient{
         this.service = new Client(descriptor);
         bridge.clients.push(this.service);
         var self = this;
+        this.lastState = 'disconnected';
 
         this.endpoints.forEach((endpoint)=>{
             if(endpoint.type == 'SharedObject') {
@@ -27,6 +28,18 @@ class ShardedSharedObjectClient{
                 this.service[endpoint.name].on('update', (d) => {
                     //console.log('update',JSON.stringify(d))
                     bridge.endpoints[endpoint.name].emit('update', d)
+                });
+                this.service[endpoint.name].on('connected', () => {
+                    this.lastState = 'connected'
+                    if(this.lastState != 'connected') {
+                        bridge.endpoints[endpoint.name].emit('connected');
+                    }
+                });
+                this.service[endpoint.name].on('disconnected', () => {
+                    if(this.lastState != 'disconnected') {
+                        bridge.endpoints[endpoint.name].emit('disconnected');
+                        this.lastState = 'disconnected'
+                    }
                 });
             }/*else if (endpoint.type == 'RPC'){
                 this.RPCServices[endpoint.name] =

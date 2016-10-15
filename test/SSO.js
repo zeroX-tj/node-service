@@ -130,6 +130,10 @@ var c = new service.Client(descriptor);
  * SharedObject test
  */
 
+c.SO.on('connected', () => {
+    console.log("Client object was connected!");
+});
+
 c.SO.on('init', () => {
     console.log("Client object was initialised:", c.SO.data);
 });
