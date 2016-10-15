@@ -13,7 +13,6 @@ process.on('message', (payload)=>{
         case 'put':
             var path = payload.data.key;
             var endpointName = path.shift();
-            //console.log(data)
             var to = service[endpointName].data;
             var field = path.pop();
             path.forEach((k)=>{
@@ -25,6 +24,8 @@ process.on('message', (payload)=>{
             service[endpointName].notify(path);
             break;
         case 'remove':
+            var path = payload.data.key;
+            var endpointName = path.shift();
             var to = service[endpointName].data;
             var field = path.pop();
             path.forEach((k)=>{

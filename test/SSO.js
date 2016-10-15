@@ -145,10 +145,16 @@ setInterval(function () {
     s.SO.put(['666', 'now'], new Date());
     s.SO.put(['sdfsdfs', 'now'], new Date());
     s.SO.put(['665646546546', 'now'], new Date());
-    s.SO.put(['66eeeee6', 'now'], new Date());
+    s.SO.remove(['66eeeee6']);
 
     //s.SO.notify();
-}, 10000);
+}, 5000);
+setTimeout(()=>{
+    "use strict";
+    s.SO.put(['66eeeee6', 'now'], new Date());
+
+},1000)
+
 
 setTimeout(()=>{
     c.TakeSnapshot.call({id:'1234', provider: 'mollybet', tag: 'START'}, (err, result)=>{
@@ -158,3 +164,4 @@ setTimeout(()=>{
         console.log(result)
     })
 }, 5000)
+
