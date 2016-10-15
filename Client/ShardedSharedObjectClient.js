@@ -30,8 +30,8 @@ class ShardedSharedObjectClient{
                     bridge.endpoints[endpoint.name].emit('update', d)
                 });
                 this.service[endpoint.name].on('connected', () => {
-                    this.lastState = 'connected'
                     if(this.lastState != 'connected') {
+                        this.lastState = 'connected';
                         bridge.endpoints[endpoint.name].emit('connected');
                     }
                 });
