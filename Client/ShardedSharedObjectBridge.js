@@ -27,6 +27,10 @@ class EndpointBridge extends EventEmitter {
     subscribe() {
         this.emit('subscribe', "_SO_" + this.endpoint.name);
     }
+
+    unsubscribe() {
+        this.emit('unsubscribe', "_SO_" + this.endpoint.name);
+    }
 }
 
 class ShardedSharedObjectBridge {
